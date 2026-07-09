@@ -1,0 +1,44 @@
+/**
+ * Manchit admin panel styles.
+ */
+.manchit-admin { max-width: 980px; }
+.manchit-admin__brand { display: flex; align-items: baseline; gap: .6rem; }
+.manchit-admin__logo { font-weight: 800; color: #d5011a; }
+.manchit-admin__brand small { color: #666; font-weight: 400; font-size: 13px; }
+
+.manchit-tabs { margin-bottom: 1rem; }
+.manchit-panel { background: #fff; border: 1px solid #dcdcde; border-radius: 8px; padding: 1.4rem; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+
+.manchit-row { display: grid; grid-template-columns: 220px 1fr; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid #f0f0f1; align-items: start; }
+.manchit-row:last-child { border-bottom: none; }
+.manchit-row__label { font-weight: 600; padding-top: 6px; }
+.manchit-row__control .description { color: #666; margin-top: 4px; }
+
+.manchit-hint { background: #f6f7f7; border-inline-start: 4px solid #72aee6; padding: .7rem 1rem; border-radius: 6px; color: #444; margin: 0 0 1rem; }
+.manchit-hint--good { border-inline-start-color: #00a32a; background: #edfaef; }
+
+/* Toggle switch */
+.manchit-switch { display: inline-flex; align-items: center; gap: .5rem; cursor: pointer; user-select: none; }
+.manchit-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+.manchit-slider { position: relative; width: 42px; height: 24px; background: #c3c4c7; border-radius: 999px; transition: background .2s; flex-shrink: 0; }
+.manchit-slider::before { content: ""; position: absolute; top: 3px; inset-inline-start: 3px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: transform .2s; }
+.manchit-switch input:checked + .manchit-slider { background: #d5011a; }
+.manchit-switch input:checked + .manchit-slider::before { transform: translateX(18px); }
+[dir="rtl"] .manchit-switch input:checked + .manchit-slider::before { transform: translateX(-18px); }
+
+/* Ads manager */
+.manchit-ads-global { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 1rem; }
+.manchit-ad-unit { border: 1px solid #dcdcde; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; background: #fbfbfc; }
+.manchit-ad-unit__head { display: flex; align-items: center; gap: 1rem; margin-bottom: .8rem; }
+.manchit-ad-unit__head .regular-text { flex: 1; }
+.manchit-remove-ad { color: #b32d2e; font-size: 22px; line-height: 1; text-decoration: none; margin-inline-start: auto; }
+.manchit-ad-unit__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: .8rem; }
+.manchit-ad-unit__grid label, .manchit-ad-code { display: block; font-weight: 600; font-size: 13px; }
+.manchit-ad-unit__grid select, .manchit-ad-unit__grid input { width: 100%; margin-top: 4px; font-weight: 400; }
+.manchit-ad-code textarea { margin-top: 4px; font-family: Menlo, Consolas, monospace; }
+.manchit-media-btn { margin-inline-start: 8px; }
+
+@media (max-width: 782px) {
+	.manchit-row { grid-template-columns: 1fr; }
+	.manchit-ad-unit__grid { grid-template-columns: 1fr; }
+}

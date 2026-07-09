@@ -1,0 +1,36 @@
+/**
+ * Block editor styles — mirror the front-end reading experience.
+ */
+.editor-styles-wrapper {
+	--mn-brand: #d5011a;
+	font-family: "Cairo", "Segoe UI", system-ui, sans-serif;
+	line-height: 1.9;
+	background: #fff;
+}
+.editor-styles-wrapper .wp-block {
+	max-width: 820px;
+}
+.editor-styles-wrapper h1,
+.editor-styles-wrapper h2,
+.editor-styles-wrapper h3,
+.editor-styles-wrapper h4 {
+	font-family: "Tajawal", "Cairo", sans-serif;
+	font-weight: 800;
+	line-height: 1.35;
+}
+.editor-styles-wrapper blockquote {
+	border-inline-start: 5px solid var(--mn-brand);
+	background: #f7f8fa;
+	padding: 1rem 1.3rem;
+	border-radius: 0 8px 8px 0;
+	font-weight: 600;
+}
+.editor-styles-wrapper a { color: var(--mn-brand); }
+.editor-styles-wrapper pre {
+	direction: ltr;
+	text-align: left;
+	background: #0d1117;
+	color: #e6edf3;
+	border-radius: 8px;
+	padding: 1rem;
+}

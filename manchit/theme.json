@@ -1,0 +1,59 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/theme.json",
+	"version": 2,
+	"settings": {
+		"appearanceTools": true,
+		"layout": {
+			"contentSize": "820px",
+			"wideSize": "1120px"
+		},
+		"color": {
+			"custom": true,
+			"customGradient": true,
+			"link": true,
+			"palette": [
+				{ "slug": "brand", "color": "#d5011a", "name": "الأساسي" },
+				{ "slug": "accent", "color": "#ffb300", "name": "المميز" },
+				{ "slug": "ink", "color": "#16181d", "name": "نص داكن" },
+				{ "slug": "muted", "color": "#7a8090", "name": "رمادي" },
+				{ "slug": "surface", "color": "#ffffff", "name": "سطح" },
+				{ "slug": "bg", "color": "#f4f5f7", "name": "خلفية" }
+			]
+		},
+		"typography": {
+			"customFontSize": true,
+			"lineHeight": true,
+			"dropCap": true,
+			"fontSizes": [
+				{ "slug": "small", "size": "0.9rem", "name": "صغير" },
+				{ "slug": "medium", "size": "1.08rem", "name": "متوسط" },
+				{ "slug": "large", "size": "1.4rem", "name": "كبير" },
+				{ "slug": "x-large", "size": "2rem", "name": "كبير جداً" }
+			]
+		},
+		"spacing": {
+			"units": [ "px", "em", "rem", "%", "vw" ],
+			"padding": true,
+			"margin": true,
+			"blockGap": true
+		}
+	},
+	"styles": {
+		"color": {
+			"background": "var(--mn-bg)",
+			"text": "var(--mn-text)"
+		},
+		"typography": {
+			"fontFamily": "var(--mn-font-body)",
+			"lineHeight": "1.9"
+		},
+		"elements": {
+			"link": {
+				"color": { "text": "var(--mn-brand)" }
+			},
+			"h1": { "typography": { "fontFamily": "var(--mn-font-head)", "fontWeight": "800" } },
+			"h2": { "typography": { "fontFamily": "var(--mn-font-head)", "fontWeight": "800" } },
+			"h3": { "typography": { "fontFamily": "var(--mn-font-head)", "fontWeight": "800" } }
+		}
+	}
+}
