@@ -343,10 +343,23 @@ function manchit_schema_article() {
 		'url'   => get_author_posts_url( $author_id ),
 	);
 
-	// Images — provide multiple crops for News/Discover when possible.
+	// Images — a primary ImageObject with real dimensions (Google prefers this)
+	// plus additional crop URLs for News/Discover eligibility.
 	$images = manchit_schema_article_images( $post_id );
 	if ( $images ) {
-		$node['image'] = $images;
+		$primary = array(
+			'@type' => 'ImageObject',
+			'url'   => $images[0],
+		);
+		if ( has_post_thumbnail( $post_id ) ) {
+			$dims = wp_get_attachment_image_src( get_post_thumbnail_id( $post_id ), 'full' );
+			if ( $dims ) {
+				$primary['url']    = $dims[0];
+				$primary['width']  = (int) $dims[1];
+				$primary['height'] = (int) $dims[2];
+			}
+		}
+		$node['image']        = array_merge( array( $primary ), array_slice( $images, 1 ) );
 		$node['thumbnailUrl'] = $images[0];
 	}
 
@@ -481,6 +494,64 @@ function manchit_current_url() {
 	}
 	return home_url( add_query_arg( array(), $GLOBALS['wp']->request ? '/' . $GLOBALS['wp']->request . '/' : '' ) );
 }
+
+/* -------------------------------------------------------------------------
+ * RSS feed enrichment (Google News / Discover ingest cleaner feeds with images)
+ * ---------------------------------------------------------------------- */
+
+/**
+ * Declare the media RSS namespace on the <rss> element.
+ */
+function manchit_feed_namespace() {
+	echo 'xmlns:media="http://search.yahoo.com/mrss/"';
+}
+add_action( 'rss2_ns', 'manchit_feed_namespace' );
+
+/**
+ * Add the featured image as an <enclosure> and <media:content> on each item.
+ */
+function manchit_feed_item_image() {
+	if ( ! has_post_thumbnail() ) {
+		return;
+	}
+	$id  = get_post_thumbnail_id();
+	$src = wp_get_attachment_image_src( $id, 'manchit-og' );
+	if ( ! $src ) {
+		return;
+	}
+	$mime = get_post_mime_type( $id );
+	printf(
+		'<enclosure url="%s" type="%s" length="0" />' . "\n",
+		esc_url( $src[0] ),
+		esc_attr( $mime ?: 'image/jpeg' )
+	);
+	printf(
+		'<media:content url="%s" medium="image" type="%s" width="%d" height="%d" />' . "\n",
+		esc_url( $src[0] ),
+		esc_attr( $mime ?: 'image/jpeg' ),
+		(int) $src[1],
+		(int) $src[2]
+	);
+}
+add_action( 'rss2_item', 'manchit_feed_item_image' );
+
+/**
+ * Prepend the featured image to feed content so readers/aggregators show it.
+ *
+ * @param string $content Feed content.
+ * @return string
+ */
+function manchit_feed_content_image( $content ) {
+	if ( is_feed() && has_post_thumbnail() ) {
+		$img = get_the_post_thumbnail( get_the_ID(), 'manchit-og', array( 'style' => 'max-width:100%;height:auto;' ) );
+		if ( $img ) {
+			$content = $img . $content;
+		}
+	}
+	return $content;
+}
+add_filter( 'the_excerpt_rss', 'manchit_feed_content_image' );
+add_filter( 'the_content_feed', 'manchit_feed_content_image' );
 
 /**
  * Emit a canonical tag on paginated/archive views WP may miss (front-end only).

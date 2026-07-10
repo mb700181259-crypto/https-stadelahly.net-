@@ -185,6 +185,12 @@ function manchit_option_keys_for_tab( $tab ) {
 			'show_topbar'           => 'checkbox',
 			'show_breadcrumbs'      => 'checkbox',
 			'show_news_ticker'      => 'checkbox',
+			'optimize_css'          => 'checkbox',
+			'prefetch_links'        => 'checkbox',
+			'ads_preconnect'        => 'checkbox',
+			'webp_swap'             => 'checkbox',
+			'preload_featured'      => 'checkbox',
+			'lazy_iframes'          => 'checkbox',
 		),
 		'article' => array(
 			'show_featured_image'   => 'checkbox',
@@ -363,6 +369,14 @@ function manchit_tab_layout( $o ) {
 	manchit_field_row( __( 'مسار التنقل (Breadcrumbs)', 'manchit' ), manchit_toggle( 'show_breadcrumbs', $o['show_breadcrumbs'], __( 'إظهار مسار التنقل', 'manchit' ) ) );
 	manchit_field_row( __( 'شريط الأخبار العاجلة', 'manchit' ), manchit_toggle( 'show_news_ticker', $o['show_news_ticker'], __( 'شريط متحرك بأحدث الأخبار', 'manchit' ) ) );
 	manchit_field_row( __( 'أعمدة التذييل', 'manchit' ), manchit_input( 'footer_columns', $o['footer_columns'], 'number', 'min="1" max="4"' ) );
+
+	echo '<hr><p class="manchit-hint">' . esc_html__( 'تحسينات الأداء (Core Web Vitals):', 'manchit' ) . '</p>';
+	manchit_field_row( __( 'تحسين تسليم CSS', 'manchit' ), manchit_toggle( 'optimize_css', $o['optimize_css'], __( 'Critical CSS مضمّن + تحميل غير حاجب للعرض', 'manchit' ) ), __( 'يزيل تحذير "Render-blocking CSS". أطفئه فقط لو لاحظت وميض تنسيق.', 'manchit' ) );
+	manchit_field_row( __( 'جلب مسبق للروابط', 'manchit' ), manchit_toggle( 'prefetch_links', $o['prefetch_links'], __( 'تصفّح شبه فوري (Speculation Rules)', 'manchit' ) ) );
+	manchit_field_row( __( 'preconnect لشبكات الإعلانات', 'manchit' ), manchit_toggle( 'ads_preconnect', $o['ads_preconnect'], __( 'تسريع أول طلب إعلان عند تفعيل الإعلانات', 'manchit' ) ) );
+	manchit_field_row( __( 'تفضيل صور WebP', 'manchit' ), manchit_toggle( 'webp_swap', $o['webp_swap'], __( 'استخدام نسخة .webp إن وُجدت بجانب الصورة', 'manchit' ) ), __( 'فعّله إن كان لديك مولّد WebP (إضافة/سيرفر/CDN).', 'manchit' ) );
+	manchit_field_row( __( 'preload صورة المقال', 'manchit' ), manchit_toggle( 'preload_featured', $o['preload_featured'], __( 'تحميل مسبق لصورة LCP في المقال', 'manchit' ) ) );
+	manchit_field_row( __( 'lazy-load للـ iframes', 'manchit' ), manchit_toggle( 'lazy_iframes', $o['lazy_iframes'], __( 'تأجيل تحميل يوتيوب/الإطارات', 'manchit' ) ) );
 }
 
 function manchit_tab_article( $o ) {

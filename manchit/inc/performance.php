@@ -178,6 +178,154 @@ function manchit_defer_scripts( $tag, $handle ) {
 add_filter( 'script_loader_tag', 'manchit_defer_scripts', 10, 2 );
 
 /**
+ * Optimized CSS delivery: load the main stylesheet non-render-blocking. The
+ * expanded critical CSS (inlined in enqueue.php) paints the above-the-fold view
+ * instantly; the full sheet then swaps in without blocking first paint. This
+ * removes the "render-blocking CSS" Lighthouse flag.
+ *
+ * @param string $tag    Link tag.
+ * @param string $handle Style handle.
+ * @return string
+ */
+function manchit_optimize_css_delivery( $tag, $handle ) {
+	if ( 'manchit-style' !== $handle ) {
+		return $tag;
+	}
+	if ( is_admin() || is_customize_preview() || ! manchit_get_option( 'optimize_css', 1 ) ) {
+		return $tag;
+	}
+	// Turn the blocking stylesheet link into a non-blocking one + noscript.
+	// 1) Strip any existing media attribute. 2) Add media=print + onload swap.
+	$async = preg_replace( '/\smedia=([\'"]).*?\1/i', '', $tag );
+	$async = preg_replace(
+		'/\s*\/?>\s*$/',
+		" media=\"print\" onload=\"this.media='all';this.onload=null\" />\n",
+		$async,
+		1
+	);
+	if ( null === $async || $async === $tag ) {
+		// Transform failed — keep the safe, blocking tag.
+		return $tag;
+	}
+	return $async . '<noscript>' . $tag . '</noscript>' . "\n";
+}
+add_filter( 'style_loader_tag', 'manchit_optimize_css_delivery', 10, 2 );
+
+/**
+ * Speculation Rules API: prefetch same-origin post/page links on hover-ish
+ * "moderate" eagerness for near-instant navigation across the site. Progressive
+ * enhancement — unsupported browsers simply ignore it.
+ */
+function manchit_speculation_rules() {
+	if ( is_admin() || ! manchit_get_option( 'prefetch_links', 1 ) ) {
+		return;
+	}
+	$rules = array(
+		'prefetch' => array(
+			array(
+				'source'    => 'document',
+				'where'     => array(
+					'and' => array(
+						array( 'href_matches' => '/*' ),
+						array( 'not' => array( 'href_matches' => array( '/wp-admin/*', '/wp-login.php', '/*\\?*' ) ) ),
+						array( 'not' => array( 'selector_matches' => '[rel~="nofollow"]' ) ),
+					),
+				),
+				'eagerness' => 'moderate',
+			),
+		),
+	);
+	echo '<script type="speculationrules">' . wp_json_encode( $rules, JSON_UNESCAPED_SLASHES ) . "</script>\n"; // phpcs:ignore
+}
+add_action( 'wp_footer', 'manchit_speculation_rules', 5 );
+
+/**
+ * Preconnect to ad networks when ads are enabled, so the first ad request is
+ * faster without hurting pages that show no ads.
+ *
+ * @param array  $hints Existing hints.
+ * @param string $rel   Relation.
+ * @return array
+ */
+function manchit_ads_preconnect( $hints, $rel ) {
+	if ( 'preconnect' !== $rel || ! manchit_get_option( 'ads_preconnect', 1 ) ) {
+		return $hints;
+	}
+	if ( function_exists( 'manchit_ads_enabled' ) && manchit_ads_enabled() ) {
+		$hints[] = array( 'href' => 'https://pagead2.googlesyndication.com', 'crossorigin' => 'anonymous' );
+		$hints[] = 'https://googleads.g.doubleclick.net';
+	}
+	return $hints;
+}
+add_filter( 'wp_resource_hints', 'manchit_ads_preconnect', 10, 2 );
+
+/**
+ * Allow WebP & AVIF uploads (modern, lighter image formats).
+ *
+ * @param array $mimes Allowed mime types.
+ * @return array
+ */
+function manchit_allow_modern_images( $mimes ) {
+	$mimes['webp'] = 'image/webp';
+	$mimes['avif'] = 'image/avif';
+	return $mimes;
+}
+add_filter( 'upload_mimes', 'manchit_allow_modern_images' );
+
+/**
+ * Optionally serve a `.webp` sibling in place of a `.jpg/.jpeg/.png` when the
+ * WebP file exists next to the original (produced by many CDNs/optimizers).
+ * Opt-in via the "webp_swap" option. Results are cached per request.
+ *
+ * @param string $content Post content.
+ * @return string
+ */
+function manchit_webp_swap( $content ) {
+	if ( is_admin() || is_feed() || ! manchit_get_option( 'webp_swap', 0 ) ) {
+		return $content;
+	}
+	$uploads = wp_get_upload_dir();
+	if ( empty( $uploads['baseurl'] ) || empty( $uploads['basedir'] ) ) {
+		return $content;
+	}
+	static $cache = array();
+
+	return preg_replace_callback(
+		'#(src|srcset)=("|\')([^"\']+)\2#i',
+		static function ( $m ) use ( $uploads, &$cache ) {
+			$attr  = $m[1];
+			$quote = $m[2];
+			$value = $m[3];
+
+			$value = preg_replace_callback(
+				'#https?://[^\s"\']+?\.(jpe?g|png)#i',
+				static function ( $u ) use ( $uploads, &$cache ) {
+					$url = $u[0];
+					if ( isset( $cache[ $url ] ) ) {
+						return $cache[ $url ];
+					}
+					$out = $url;
+					if ( 0 === strpos( $url, $uploads['baseurl'] ) ) {
+						$webp_url  = preg_replace( '#\.(jpe?g|png)$#i', '.webp', $url );
+						$webp_path = str_replace( $uploads['baseurl'], $uploads['basedir'], $webp_url );
+						if ( $webp_path && file_exists( $webp_path ) ) {
+							$out = $webp_url;
+						}
+					}
+					$cache[ $url ] = $out;
+					return $out;
+				},
+				$value
+			);
+
+			return $attr . '=' . $quote . $value . $quote;
+		},
+		$content
+	);
+}
+add_filter( 'the_content', 'manchit_webp_swap', 22 );
+
+/**
  * Slim down the REST/oEmbed/XML-RPC surface a little for news sites.
  */
 function manchit_trim_extras() {

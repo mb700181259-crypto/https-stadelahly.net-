@@ -74,6 +74,10 @@ function manchit_default_options() {
 		// Performance.
 		'lazy_iframes'         => 1,
 		'preload_featured'     => 1,
+		'optimize_css'         => 1, // inline critical CSS + non-blocking main sheet
+		'prefetch_links'       => 1, // Speculation Rules prefetch for instant nav
+		'webp_swap'            => 0, // serve .webp siblings when present
+		'ads_preconnect'       => 1, // preconnect to ad networks when ads on
 
 		// Footer.
 		'copyright_text'       => '',
