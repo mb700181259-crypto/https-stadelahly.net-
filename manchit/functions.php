@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MANCHIT_VERSION', '1.2.1' );
+define( 'MANCHIT_VERSION', '1.3.0' );
 define( 'MANCHIT_DIR', trailingslashit( get_template_directory() ) );
 define( 'MANCHIT_URI', trailingslashit( get_template_directory_uri() ) );
 
@@ -39,6 +39,7 @@ manchit_require( 'template-tags' );      // helpers used inside templates
 manchit_require( 'breadcrumbs' );        // accessible breadcrumbs + schema
 manchit_require( 'seo' );                // JSON-LD schema, OG, News/Discover meta
 manchit_require( 'ads' );                // ad placement engine
+manchit_require( 'ads-txt' );            // safe ads.txt manager
 manchit_require( 'revenue-share' );      // optional author revenue sharing
 manchit_require( 'news-sitemap' );       // Google News XML sitemap
 manchit_require( 'customizer' );         // Customizer (colors, logo, live preview)

@@ -147,6 +147,11 @@ function manchit_save_ads() {
 	$ads['hide_logged_in'] = ! empty( $_POST['manchit_ads']['hide_logged_in'] ) ? 1 : 0;
 	$ads['auto_ads']       = ! empty( $_POST['manchit_ads']['auto_ads'] ) ? 1 : 0;
 	$ads['adsense_client'] = isset( $_POST['manchit_ads']['adsense_client'] ) ? sanitize_text_field( wp_unslash( $_POST['manchit_ads']['adsense_client'] ) ) : '';
+	$ads['max_in_content'] = max( 0, min( 10, (int) ( $_POST['manchit_ads']['max_in_content'] ?? 3 ) ) );
+	$ads['min_paragraphs'] = max( 1, min( 20, (int) ( $_POST['manchit_ads']['min_paragraphs'] ?? 2 ) ) );
+	$ads['enable_ads_txt']       = ! empty( $_POST['manchit_ads']['enable_ads_txt'] ) ? 1 : 0;
+	$ads['ads_txt_managed_only'] = ! empty( $_POST['manchit_ads']['ads_txt_managed_only'] ) ? 1 : 0;
+	$ads['ads_txt']              = isset( $_POST['manchit_ads']['ads_txt'] ) ? sanitize_textarea_field( wp_unslash( $_POST['manchit_ads']['ads_txt'] ) ) : '';
 
 	$units = array();
 	if ( ! empty( $_POST['manchit_ads']['units'] ) && is_array( $_POST['manchit_ads']['units'] ) ) {
@@ -170,6 +175,8 @@ function manchit_save_ads() {
 				'scope'      => in_array( $unit['scope'] ?? 'all', $scopes, true ) ? $unit['scope'] : 'all',
 				'categories' => array_filter( array_map( 'intval', (array) ( $unit['categories'] ?? array() ) ) ),
 				'post_types' => array_filter( array_map( 'sanitize_key', (array) ( $unit['post_types'] ?? array() ) ) ),
+				'start_date' => preg_match( '/^\d{4}-\d{2}-\d{2}$/', $unit['start_date'] ?? '' ) ? $unit['start_date'] : '',
+				'end_date'   => preg_match( '/^\d{4}-\d{2}-\d{2}$/', $unit['end_date'] ?? '' ) ? $unit['end_date'] : '',
 				'status'     => ! empty( $unit['status'] ) ? 1 : 0,
 			);
 		}
@@ -177,6 +184,14 @@ function manchit_save_ads() {
 	$ads['units'] = $units;
 
 	update_option( 'manchit_ads', $ads );
+
+	// Sync ads.txt (physical or virtual) and surface the result.
+	if ( function_exists( 'manchit_ads_txt_sync' ) ) {
+		$result = manchit_ads_txt_sync();
+		if ( ! empty( $result['message'] ) ) {
+			set_transient( 'manchit_ads_txt_notice', $result['message'], 30 );
+		}
+	}
 
 	// Revenue-share settings live on the ads tab but belong to manchit_options.
 	$opts              = manchit_get_options();
@@ -252,6 +267,13 @@ function manchit_render_settings_page() {
 		<?php if ( get_transient( 'manchit_settings_notice' ) ) : ?>
 			<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'تم حفظ الإعدادات بنجاح.', 'manchit' ); ?></p></div>
 			<?php delete_transient( 'manchit_settings_notice' ); ?>
+		<?php endif; ?>
+		<?php
+		$adstxt_notice = get_transient( 'manchit_ads_txt_notice' );
+		if ( $adstxt_notice ) :
+			?>
+			<div class="notice notice-info is-dismissible"><p><?php echo esc_html( $adstxt_notice ); ?></p></div>
+			<?php delete_transient( 'manchit_ads_txt_notice' ); ?>
 		<?php endif; ?>
 
 		<nav class="nav-tab-wrapper manchit-tabs">
@@ -485,7 +507,34 @@ function manchit_tab_ads( $o ) {
 			__( 'الإعلانات التلقائية (Auto Ads)', 'manchit' ),
 			sprintf( '<label class="manchit-switch"><input type="checkbox" name="manchit_ads[auto_ads]" value="1" %s><span class="manchit-slider"></span> %s</label>', checked( 1, (int) $ads['auto_ads'], false ), esc_html__( 'ترك جوجل يضع الإعلانات تلقائياً', 'manchit' ) )
 		); ?>
+		<?php manchit_field_row(
+			__( 'أقصى عدد إعلانات داخل المقال', 'manchit' ),
+			sprintf( '<input type="number" min="0" max="10" name="manchit_ads[max_in_content]" value="%d" class="small-text">', (int) $ads['max_in_content'] ),
+			__( 'سقف كثافة الإعلانات داخل المقال (لتجربة قراءة مريحة).', 'manchit' )
+		); ?>
+		<?php manchit_field_row(
+			__( 'أقل عدد فقرات لإظهار إعلانات المقال', 'manchit' ),
+			sprintf( '<input type="number" min="1" max="20" name="manchit_ads[min_paragraphs]" value="%d" class="small-text">', (int) $ads['min_paragraphs'] ),
+			__( 'لا تُحقن إعلانات داخل المقالات القصيرة جداً.', 'manchit' )
+		); ?>
 	</div>
+
+	<hr>
+	<h2><?php esc_html_e( 'ملف ads.txt', 'manchit' ); ?></h2>
+	<p class="manchit-hint"><?php esc_html_e( 'إدارة آمنة: لا يحذف أسطر الشبكات الأخرى، يمنع التكرار، يتحقق من الصيغة، يحتفظ بنسخة احتياطية، ويتحوّل لملف افتراضي إذا تعذّرت الكتابة.', 'manchit' ); ?></p>
+	<?php
+	$mode = get_option( 'manchit_ads_txt_mode', '' );
+	if ( $mode ) {
+		printf(
+			'<p class="manchit-hint %s">%s</p>',
+			'physical' === $mode ? 'manchit-hint--good' : '',
+			'physical' === $mode ? esc_html__( 'الوضع الحالي: ملف فعلي على القرص ✓', 'manchit' ) : esc_html__( 'الوضع الحالي: ملف افتراضي يخدمه ووردبريس على /ads.txt', 'manchit' )
+		);
+	}
+	manchit_field_row( __( 'تفعيل إدارة ads.txt', 'manchit' ), sprintf( '<label class="manchit-switch"><input type="checkbox" name="manchit_ads[enable_ads_txt]" value="1" %s><span class="manchit-slider"></span> %s</label>', checked( 1, (int) $ads['enable_ads_txt'], false ), esc_html__( 'تفعيل', 'manchit' ) ) );
+	manchit_field_row( __( 'أسطر ads.txt', 'manchit' ), sprintf( '<textarea name="manchit_ads[ads_txt]" rows="5" class="large-text code" dir="ltr" placeholder="google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0">%s</textarea>', esc_textarea( $ads['ads_txt'] ) ), __( 'كل سطر: domain, publisher-id, DIRECT|RESELLER, cert-id — يُدمج مع الموجود بلا تكرار.', 'manchit' ) );
+	manchit_field_row( __( 'استبدال كامل', 'manchit' ), sprintf( '<label class="manchit-switch"><input type="checkbox" name="manchit_ads[ads_txt_managed_only]" value="1" %s><span class="manchit-slider"></span> %s</label>', checked( 1, (int) $ads['ads_txt_managed_only'], false ), esc_html__( 'استخدم هذه الأسطر فقط (لا تحتفظ بالأسطر الموجودة)', 'manchit' ) ), __( 'اتركه مطفأً للحفاظ على أسطر الشبكات الأخرى.', 'manchit' ) );
+	?>
 
 	<div id="manchit-ad-units">
 		<?php
@@ -574,6 +623,16 @@ function manchit_render_ad_unit_row( $i, $unit, $locations ) {
 		<label class="manchit-ad-slot manchit-when-adsense"><?php esc_html_e( 'رقم الوحدة الإعلانية (Ad slot ID)', 'manchit' ); ?>
 			<input type="text" name="<?php echo esc_attr( $name ); ?>[ad_slot]" value="<?php echo esc_attr( $unit['ad_slot'] ?? '' ); ?>" class="regular-text" dir="ltr" placeholder="1234567890">
 		</label>
+
+		<div class="manchit-ad-schedule">
+			<label><?php esc_html_e( 'يبدأ من', 'manchit' ); ?>
+				<input type="date" name="<?php echo esc_attr( $name ); ?>[start_date]" value="<?php echo esc_attr( $unit['start_date'] ?? '' ); ?>">
+			</label>
+			<label><?php esc_html_e( 'ينتهي في', 'manchit' ); ?>
+				<input type="date" name="<?php echo esc_attr( $name ); ?>[end_date]" value="<?php echo esc_attr( $unit['end_date'] ?? '' ); ?>">
+			</label>
+			<span class="description"><?php esc_html_e( 'اتركهما فارغين للظهور الدائم.', 'manchit' ); ?></span>
+		</div>
 
 		<details class="manchit-ad-targeting">
 			<summary><?php esc_html_e( 'استهداف متقدّم (تصنيفات / أنواع)', 'manchit' ); ?></summary>

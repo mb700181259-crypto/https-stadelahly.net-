@@ -51,10 +51,13 @@ function manchit_is_amp() {
 function manchit_ad_locations() {
 	return array(
 		'header'          => __( 'أسفل الهيدر (بانر علوي)', 'manchit' ),
-		'before_content'  => __( 'قبل محتوى المقال', 'manchit' ),
 		'after_title'     => __( 'بعد عنوان المقال', 'manchit' ),
+		'before_featured' => __( 'قبل الصورة البارزة', 'manchit' ),
+		'after_featured'  => __( 'بعد الصورة البارزة', 'manchit' ),
+		'before_content'  => __( 'قبل محتوى المقال', 'manchit' ),
 		'in_content'      => __( 'داخل المقال (بعد فقرة معينة)', 'manchit' ),
 		'after_content'   => __( 'بعد محتوى المقال', 'manchit' ),
+		'before_comments' => __( 'قبل التعليقات', 'manchit' ),
 		'before_related'  => __( 'قبل المقالات ذات الصلة', 'manchit' ),
 		'sidebar_top'     => __( 'أعلى الشريط الجانبي', 'manchit' ),
 		'sidebar_bottom'  => __( 'أسفل الشريط الجانبي', 'manchit' ),
@@ -92,6 +95,11 @@ function manchit_default_ads() {
 		'hide_logged_in'   => 0,
 		'adsense_client'   => '', // ca-pub-xxxxxxxx (site owner's — used by managed units + auto ads).
 		'auto_ads'         => 0,  // AdSense Auto Ads site-wide.
+		'max_in_content'   => 3,  // hard cap on in-content ads per article.
+		'min_paragraphs'   => 2,  // don't inject if the article is shorter than this.
+		'enable_ads_txt'   => 0,
+		'ads_txt'          => '',
+		'ads_txt_managed_only' => 0,
 		'units'            => array(),
 	);
 }
@@ -192,6 +200,34 @@ function manchit_unit_matches( $unit ) {
 }
 
 /**
+ * Whether an ad unit is inside its scheduling window (site timezone).
+ *
+ * @param array $unit Unit.
+ * @return bool
+ */
+function manchit_unit_in_schedule( $unit ) {
+	$start = trim( (string) ( $unit['start_date'] ?? '' ) );
+	$end   = trim( (string) ( $unit['end_date'] ?? '' ) );
+	if ( '' === $start && '' === $end ) {
+		return true;
+	}
+	$now = (int) current_time( 'timestamp' );
+	if ( '' !== $start ) {
+		$ts = strtotime( $start . ' 00:00:00' );
+		if ( $ts && $now < $ts ) {
+			return false;
+		}
+	}
+	if ( '' !== $end ) {
+		$ts = strtotime( $end . ' 23:59:59' );
+		if ( $ts && $now > $ts ) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/**
  * Fetch enabled + targeted units for a location.
  *
  * @param string $location Location key.
@@ -222,8 +258,14 @@ function manchit_units_for( $location ) {
 				'scope'      => 'all',
 				'categories' => array(),
 				'post_types' => array(),
+				'start_date' => '',
+				'end_date'   => '',
 			)
 		);
+		// Scheduling window (YYYY-MM-DD). Empty = unbounded.
+		if ( ! manchit_unit_in_schedule( $unit ) ) {
+			continue;
+		}
 		// Must have something to show.
 		if ( 'adsense' === $unit['type'] ) {
 			if ( '' === trim( (string) $unit['ad_slot'] ) && '' === trim( (string) manchit_get_ads()['adsense_client'] ) ) {
@@ -426,30 +468,189 @@ function manchit_inject_content_ads( $content ) {
 add_filter( 'the_content', 'manchit_inject_content_ads', 15 );
 
 /**
- * Insert ad markup after specific paragraph indexes.
+ * Insert in-content ads AFTER top-level paragraphs only — never inside a
+ * heading, list, table, blockquote, figure or unclosed element. Uses DOM so
+ * insertion respects real HTML structure (not a word count), honors a hard
+ * density cap, and skips very short articles. Falls back to a safe paragraph
+ * split if DOM is unavailable.
  *
  * @param string $content Content HTML.
- * @param array  $units   In-content units.
+ * @param array  $units   In-content units (already targeted).
  * @return string
  */
 function manchit_insert_ads_into_paragraphs( $content, $units ) {
-	$paragraphs = preg_split( '/(<\/p>)/i', $content, -1, PREG_SPLIT_DELIM_CAPTURE );
-	if ( ! $paragraphs ) {
+	if ( '' === trim( $content ) ) {
+		return $content;
+	}
+	$ads   = manchit_get_ads();
+	$max   = max( 1, (int) ( $ads['max_in_content'] ?? 3 ) );
+	$min_p = max( 1, (int) ( $ads['min_paragraphs'] ?? 2 ) );
+
+	// Reliable paragraph count — skip short articles for both code paths.
+	if ( (int) preg_match_all( '/<p[\s>]/i', $content ) < $min_p ) {
+		return $content;
+	}
+
+	if ( ! class_exists( 'DOMDocument' ) ) {
+		return manchit_insert_ads_fallback( $content, $units, $max, $min_p );
+	}
+
+	$dom = new DOMDocument();
+	libxml_use_internal_errors( true );
+	$ok = $dom->loadHTML(
+		'<?xml encoding="utf-8"?><div id="mn-adroot">' . $content . '</div>',
+		LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+	);
+	libxml_clear_errors();
+	$root = $ok ? $dom->getElementById( 'mn-adroot' ) : null;
+	if ( ! $root ) {
+		return manchit_insert_ads_fallback( $content, $units, $max, $min_p );
+	}
+
+	// Top-level, non-empty paragraphs only.
+	$paras = array();
+	foreach ( iterator_to_array( $root->childNodes ) as $node ) {
+		if ( XML_ELEMENT_NODE === $node->nodeType && 'p' === strtolower( $node->nodeName ) && '' !== trim( $node->textContent ) ) {
+			$paras[] = $node;
+		}
+	}
+	if ( count( $paras ) < $min_p ) {
+		return manchit_insert_ads_fallback( $content, $units, $max, $min_p );
+	}
+
+	// Insert unique comment placeholders after chosen paragraphs, then swap the
+	// real ad HTML in afterwards (keeps complex ad markup out of the DOM).
+	$placeholders = array();
+	$inserted     = 0;
+	$used_idx      = array();
+	foreach ( $units as $unit ) {
+		if ( $inserted >= $max ) {
+			break;
+		}
+		$markup = manchit_ad_markup( $unit );
+		if ( '' === trim( $markup ) ) {
+			continue;
+		}
+		$idx = min( max( 1, (int) $unit['paragraph'] ), count( $paras ) ) - 1;
+		// Avoid stacking two ads on the same paragraph boundary.
+		while ( isset( $used_idx[ $idx ] ) && $idx < count( $paras ) - 1 ) {
+			$idx++;
+		}
+		if ( isset( $used_idx[ $idx ] ) ) {
+			continue;
+		}
+		$used_idx[ $idx ] = true;
+
+		$token           = '<!--MN_AD_' . $inserted . '-->';
+		$placeholders[ $token ] = $markup;
+		$comment         = $dom->createComment( 'MN_AD_' . $inserted );
+		$after           = $paras[ $idx ];
+		if ( $after->nextSibling ) {
+			$after->parentNode->insertBefore( $comment, $after->nextSibling );
+		} else {
+			$after->parentNode->appendChild( $comment );
+		}
+		$inserted++;
+	}
+
+	$html = '';
+	foreach ( $root->childNodes as $child ) {
+		$html .= $dom->saveHTML( $child );
+	}
+	// Swap placeholders (DOM writes comments as <!--MN_AD_n-->).
+	foreach ( $placeholders as $token => $markup ) {
+		$html = str_replace( $token, $markup, $html );
+	}
+	return $html;
+}
+
+/**
+ * Regex fallback: split on top-level </p> and insert after the Nth paragraph,
+ * honoring the density cap.
+ *
+ * @param string $content Content.
+ * @param array  $units   Units.
+ * @param int    $max     Max ads.
+ * @param int    $min_p   Minimum paragraphs required.
+ * @return string
+ */
+function manchit_insert_ads_fallback( $content, $units, $max, $min_p ) {
+	$parts = preg_split( '/(<\/p>)/i', $content, -1, PREG_SPLIT_DELIM_CAPTURE );
+	if ( ! $parts ) {
 		return $content;
 	}
 	$blocks = array();
-	for ( $i = 0; $i < count( $paragraphs ); $i += 2 ) {
-		$blocks[] = ( $paragraphs[ $i ] ?? '' ) . ( $paragraphs[ $i + 1 ] ?? '' );
+	for ( $i = 0; $i < count( $parts ); $i += 2 ) {
+		$blocks[] = ( $parts[ $i ] ?? '' ) . ( $parts[ $i + 1 ] ?? '' );
 	}
 	$total = count( $blocks );
+	if ( $total < $min_p ) {
+		return $content;
+	}
+	$inserted = 0;
+	$used     = array();
 	foreach ( $units as $unit ) {
-		$target = max( 1, (int) $unit['paragraph'] );
-		$idx    = min( $target, $total ) - 1;
-		if ( isset( $blocks[ $idx ] ) ) {
-			$blocks[ $idx ] .= manchit_ad_markup( $unit );
+		if ( $inserted >= $max ) {
+			break;
 		}
+		$idx = min( max( 1, (int) $unit['paragraph'] ), $total ) - 1;
+		while ( isset( $used[ $idx ] ) && $idx < $total - 1 ) {
+			$idx++;
+		}
+		if ( isset( $used[ $idx ] ) || ! isset( $blocks[ $idx ] ) ) {
+			continue;
+		}
+		$markup = manchit_ad_markup( $unit );
+		if ( '' === trim( $markup ) ) {
+			continue;
+		}
+		$blocks[ $idx ] .= $markup;
+		$used[ $idx ]    = true;
+		$inserted++;
 	}
 	return implode( '', $blocks );
+}
+
+/**
+ * Register a dynamic Gutenberg ad block (manchit/ad) that renders a location's
+ * ad units server-side. No client bundle needed beyond a tiny editor script.
+ */
+function manchit_register_ad_block() {
+	if ( ! function_exists( 'register_block_type' ) ) {
+		return;
+	}
+	wp_register_script(
+		'manchit-ad-block',
+		MANCHIT_URI . 'assets/js/block-ad.js',
+		array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n' ),
+		MANCHIT_VERSION,
+		true
+	);
+	register_block_type(
+		'manchit/ad',
+		array(
+			'editor_script'   => 'manchit-ad-block',
+			'attributes'      => array(
+				'location' => array( 'type' => 'string', 'default' => 'in_content' ),
+			),
+			'render_callback' => 'manchit_ad_block_render',
+		)
+	);
+}
+add_action( 'init', 'manchit_register_ad_block' );
+
+/**
+ * Server render for the manchit/ad block.
+ *
+ * @param array $attrs Block attributes.
+ * @return string
+ */
+function manchit_ad_block_render( $attrs ) {
+	$loc = sanitize_key( $attrs['location'] ?? 'in_content' );
+	if ( ! array_key_exists( $loc, manchit_ad_locations() ) ) {
+		return '';
+	}
+	return manchit_render_ads( $loc, false );
 }
 
 /**

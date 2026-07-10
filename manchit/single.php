@@ -50,6 +50,7 @@ while ( have_posts() ) :
 						<?php
 						// Featured image (LCP element — perf module sets fetchpriority).
 						if ( manchit_get_option( 'show_featured_image', 1 ) && has_post_thumbnail() ) :
+							manchit_render_ads( 'before_featured' );
 							?>
 							<figure class="mn-article__featured">
 								<?php the_post_thumbnail( 'manchit-hero', array( 'fetchpriority' => 'high' ) ); ?>
@@ -60,6 +61,7 @@ while ( have_posts() ) :
 								}
 								?>
 							</figure>
+							<?php manchit_render_ads( 'after_featured' ); ?>
 						<?php endif; ?>
 
 						<?php
@@ -158,6 +160,7 @@ while ( have_posts() ) :
 
 				// Comments.
 				if ( comments_open() || get_comments_number() ) {
+					manchit_render_ads( 'before_comments' );
 					comments_template();
 				}
 

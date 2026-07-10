@@ -46,6 +46,9 @@
 @media (max-width: 782px) { .manchit-ad-targeting__grid { grid-template-columns: 1fr; } }
 .manchit-checklist { max-height: 160px; overflow-y: auto; border: 1px solid #dcdcde; border-radius: 6px; padding: .5rem; margin-top: .3rem; background: #fff; }
 .manchit-checklist label { display: block; font-weight: 400; font-size: 13px; padding: .12rem 0; }
+.manchit-ad-schedule { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; margin-top: .6rem; font-size: 13px; }
+.manchit-ad-schedule label { font-weight: 600; }
+.manchit-ad-schedule input { margin-inline-start: 4px; }
 
 @media (max-width: 782px) {
 	.manchit-row { grid-template-columns: 1fr; }

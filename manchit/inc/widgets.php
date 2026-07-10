@@ -54,6 +54,7 @@ function manchit_register_widgets() {
 	register_widget( 'Manchit_Popular_Posts_Widget' );
 	register_widget( 'Manchit_Recent_Posts_Widget' );
 	register_widget( 'Manchit_Social_Widget' );
+	register_widget( 'Manchit_Ad_Widget' );
 }
 add_action( 'widgets_init', 'manchit_register_widgets' );
 
@@ -207,6 +208,47 @@ class Manchit_Recent_Posts_Widget extends WP_Widget {
 			'count' => max( 1, (int) ( $new['count'] ?? 5 ) ),
 			'cat'   => (int) ( $new['cat'] ?? 0 ),
 		);
+	}
+}
+
+/**
+ * Ad widget — paste ad code once; renders inside a labelled, CLS-safe box.
+ */
+class Manchit_Ad_Widget extends WP_Widget {
+
+	public function __construct() {
+		parent::__construct(
+			'manchit_ad',
+			__( 'Manchit: إعلان', 'manchit' ),
+			array( 'description' => __( 'مساحة إعلانية (AdSense / HTML) داخل صندوق محجوز يمنع القفز.', 'manchit' ) )
+		);
+	}
+
+	public function widget( $args, $instance ) {
+		if ( function_exists( 'manchit_ads_enabled' ) && ! manchit_ads_enabled() ) {
+			return;
+		}
+		$code = $instance['code'] ?? '';
+		if ( '' === trim( $code ) ) {
+			return;
+		}
+		echo $args['before_widget']; // phpcs:ignore
+		echo '<div class="mn-ad"><span class="mn-ad__label">' . esc_html__( 'إعلان', 'manchit' ) . '</span><div class="mn-ad__inner">' . do_shortcode( $code ) . '</div></div>'; // phpcs:ignore
+		echo $args['after_widget']; // phpcs:ignore
+	}
+
+	public function form( $instance ) {
+		$code = $instance['code'] ?? '';
+		?>
+		<p><label><?php esc_html_e( 'كود الإعلان:', 'manchit' ); ?>
+			<textarea class="widefat code" rows="5" dir="ltr" name="<?php echo esc_attr( $this->get_field_name( 'code' ) ); ?>"><?php echo esc_textarea( $code ); ?></textarea>
+		</label></p>
+		<?php
+	}
+
+	public function update( $new, $old ) {
+		// Ad code (may contain scripts) — admin only.
+		return array( 'code' => trim( (string) ( $new['code'] ?? '' ) ) );
 	}
 }
 
