@@ -55,11 +55,13 @@ function a4h_enqueue_scripts() {
     } else {
         wp_enqueue_style('bs', a4h_front_scripts('bs_css_ltr'));
     }
-    wp_enqueue_style(THEME_VAR, get_parent_theme_file_uri('style.css'), '', THEME_VERSION);
+    $theme_css = file_exists(get_template_directory().'/style.min.css') ? 'style.min.css' : 'style.css';
+    wp_enqueue_style(THEME_VAR, get_parent_theme_file_uri($theme_css), '', THEME_VERSION);
 	if ( is_child_theme() ) {
 		wp_enqueue_style(THEME_VAR.'-child', get_theme_file_uri('style.css'), '', THEME_CHILD_VERSION);
 	}
-    wp_enqueue_script(THEME_VAR, get_parent_theme_file_uri('style.js'), '', THEME_VERSION, false);
+    $theme_js = file_exists(get_template_directory().'/style.min.js') ? 'style.min.js' : 'style.js';
+    wp_enqueue_script(THEME_VAR, get_parent_theme_file_uri($theme_js), '', THEME_VERSION, false);
 	if ( is_child_theme() && file_exists(get_stylesheet_directory().'/style.js') ) {
 		wp_enqueue_script(THEME_VAR.'-child', get_theme_file_uri('style.js'), '', THEME_CHILD_VERSION, false);
 	}
@@ -71,7 +73,7 @@ add_action('wp_enqueue_scripts', 'a4h_enqueue_scripts');
 
 function a4h_theme_scripts_add_data_cfasync($tag, $handle, $src) {
     if ( $handle == THEME_VAR || $handle == THEME_VAR.'-child' ) {
-        $tag = str_replace('<script ', '<script data-cfasync="false" ', $tag);
+        $tag = str_replace('<script ', '<script defer data-cfasync="false" ', $tag);
     }
     return $tag;
 }
@@ -93,12 +95,7 @@ add_action('wp_head', 'a4h_css_dynamic', 0);
 
 function a4h_browser_theme_color() {
 	?>
-	<!-- Chrome, Firefox OS and Opera -->
-	<meta name="theme-color" content="<?php echo a4h_options('site_color'); ?>">
-	<!-- Windows Phone -->
-	<meta name="msapplication-navbutton-color" content="<?php echo a4h_options('site_color'); ?>">
-	<!-- iOS Safari -->
-	<meta name="apple-mobile-web-app-status-bar-style" content="<?php echo a4h_options('site_color'); ?>">
+	<meta name="theme-color" content="<?php echo esc_attr(a4h_options('site_color')); ?>">
 	<?php
 }
 add_action('wp_head', 'a4h_browser_theme_color');
@@ -154,10 +151,16 @@ function a4h_js_detection() {
 add_action('wp_head', 'a4h_js_detection', 0);
 
 function a4h_google_fonts_load() {
+	$available_fonts = array('Readex Pro', 'Noto Kufi Arabic', 'Rubik');
+	$site_font = function_exists('a4h_options') ? a4h_options('site_font') : '';
+	$fonts_to_load = in_array($site_font, $available_fonts) ? array($site_font) : $available_fonts;
+	$families_query = implode('&', array_map(function($font) {
+		return 'family='.str_replace(' ', '+', $font).':wght@500';
+	}, $fonts_to_load));
 	?>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@500&family=Noto+Kufi+Arabic:wght@500&family=Rubik:wght@500&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?<?php echo esc_attr($families_query); ?>&display=swap" rel="stylesheet">
 	<?php
 }
 add_action('wp_head', 'a4h_google_fonts_load');

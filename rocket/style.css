@@ -3415,3 +3415,19 @@ html.no-js .singular-question .question-content {
 }
 
 /************************************/
+
+/************************************/
+/* skip link (accessibility) */
+/************************************/
+
+.skip-link:focus {
+    position: fixed;
+    top: 0.5rem;
+    inset-inline-start: 0.5rem;
+    z-index: 100000;
+    padding: 0.5em 1em;
+    background: var(--site-color);
+    color: #FFFFFF;
+    border-radius: var(--site-border-radius);
+    text-decoration: none;
+}

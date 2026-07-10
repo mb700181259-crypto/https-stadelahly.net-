@@ -7,6 +7,7 @@
 	<?php a4h_hook('head_end'); ?>
 </head>
 <body <?php body_class(); ?> data-theme="<?php echo a4h_site_theme(); ?>" data-bs-theme="<?php echo a4h_site_theme(); ?>">
+	<a class="visually-hidden-focusable skip-link" href="#main"><?php echo esc_html( is_rtl() ? 'تخطى إلى المحتوى' : 'Skip to content' ); ?></a>
 	<?php a4h_hook('body_start'); ?>
 	<div id="site">
 		<header id="header">
