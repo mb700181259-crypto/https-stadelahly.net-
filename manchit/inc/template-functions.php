@@ -125,15 +125,30 @@ function manchit_responsive_oembed( $html ) {
 add_filter( 'embed_oembed_html', 'manchit_responsive_oembed', 10 );
 
 /**
- * Improve the automatic reading time / word count available to templates.
+ * Unicode-aware word count (str_word_count miscounts Arabic/RTL scripts).
+ *
+ * @param string $text Raw text/HTML.
+ * @return int
+ */
+function manchit_word_count( $text ) {
+	$text  = wp_strip_all_tags( (string) $text );
+	$text  = trim( preg_replace( '/\s+/u', ' ', $text ) );
+	if ( '' === $text ) {
+		return 0;
+	}
+	$parts = preg_split( '/\s+/u', $text );
+	return is_array( $parts ) ? count( $parts ) : 0;
+}
+
+/**
+ * Estimated reading time in minutes for the current/given post.
  *
  * @param int|null $post_id Post ID.
  * @return int Minutes.
  */
 function manchit_reading_time( $post_id = null ) {
 	$post_id = $post_id ?: get_the_ID();
-	$content = get_post_field( 'post_content', $post_id );
-	$words   = max( 1, str_word_count( wp_strip_all_tags( $content ) ) );
-	// Arabic reads a bit differently; ~180 wpm is a reasonable news estimate.
+	$words   = max( 1, manchit_word_count( get_post_field( 'post_content', $post_id ) ) );
+	// ~180 words/minute is a reasonable Arabic news reading estimate.
 	return max( 1, (int) ceil( $words / 180 ) );
 }

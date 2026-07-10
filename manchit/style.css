@@ -202,6 +202,12 @@ ul[role="list"], ol[role="list"] { list-style: none; padding: 0; }
 .mn-menu-toggle { display: none; }
 @media (max-width: 991px) { .mn-menu-toggle { display: inline-grid; } }
 
+/* Theme toggle: show the icon for the mode you'd switch TO */
+.mn-theme-toggle .mn-ic-sun, .mn-theme-toggle .mn-ic-moon { display: inline-grid; }
+[data-theme="light"] .mn-theme-toggle .mn-ic-sun { display: none; }
+[data-theme="dark"] .mn-theme-toggle .mn-ic-moon { display: none; }
+.mn-theme-toggle svg { width: 22px; height: 22px; }
+
 /* ==========================================================================
    Section headings
    ========================================================================== */

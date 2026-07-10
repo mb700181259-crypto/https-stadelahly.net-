@@ -359,7 +359,7 @@ function manchit_schema_article() {
 	if ( $tags ) {
 		$node['keywords'] = implode( ', ', wp_list_pluck( $tags, 'name' ) );
 	}
-	$node['wordCount']       = str_word_count( wp_strip_all_tags( get_post_field( 'post_content', $post_id ) ) );
+	$node['wordCount']       = function_exists( 'manchit_word_count' ) ? manchit_word_count( get_post_field( 'post_content', $post_id ) ) : 0;
 	$node['commentCount']    = (int) get_comments_number( $post_id );
 
 	// Speakable (voice / Assistant).

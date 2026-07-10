@@ -137,15 +137,29 @@ function manchit_tune_thumbnail_attrs( $attr, $attachment, $size ) {
 add_filter( 'wp_get_attachment_image_attributes', 'manchit_tune_thumbnail_attrs', 10, 3 );
 
 /**
- * Ensure content images lazy-load and are async-decoded (belt & braces).
+ * Preload the LCP featured image on singular views so the largest paint starts
+ * immediately (a direct Largest Contentful Paint win). Uses imagesrcset/sizes
+ * so the preload matches exactly what the responsive <img> will request.
  */
-function manchit_content_image_perf( $content ) {
-	if ( is_admin() || is_feed() ) {
-		return $content;
+function manchit_preload_featured_image() {
+	if ( ! is_singular() || ! has_post_thumbnail() || ! manchit_get_option( 'preload_featured', 1 ) ) {
+		return;
 	}
-	return $content;
+	$id  = get_post_thumbnail_id();
+	$src = wp_get_attachment_image_src( $id, 'manchit-hero' );
+	if ( ! $src ) {
+		return;
+	}
+	$srcset = wp_get_attachment_image_srcset( $id, 'manchit-hero' );
+	$sizes  = wp_get_attachment_image_sizes( $id, 'manchit-hero' );
+
+	$attrs = sprintf( ' href="%s"', esc_url( $src[0] ) );
+	if ( $srcset && $sizes ) {
+		$attrs = sprintf( ' href="%s" imagesrcset="%s" imagesizes="%s"', esc_url( $src[0] ), esc_attr( $srcset ), esc_attr( $sizes ) );
+	}
+	echo '<link rel="preload" as="image" fetchpriority="high"' . $attrs . ">\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- attributes escaped above.
 }
-add_filter( 'the_content', 'manchit_content_image_perf', 20 );
+add_action( 'wp_head', 'manchit_preload_featured_image', 1 );
 
 /**
  * Defer theme scripts for a faster first paint. Applied selectively in enqueue.
