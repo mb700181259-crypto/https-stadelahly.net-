@@ -39,6 +39,7 @@ function manchit_settings_tabs() {
 		'fonts'   => __( 'الخطوط', 'manchit' ),
 		'header'  => __( 'الهيدر', 'manchit' ),
 		'footer'  => __( 'الفوتر', 'manchit' ),
+		'home'    => __( 'الصفحة الرئيسية', 'manchit' ),
 		'layout'  => __( 'التخطيط', 'manchit' ),
 		'article' => __( 'المقالات', 'manchit' ),
 		'seo'     => __( 'السيو وجوجل نيوز', 'manchit' ),
@@ -64,6 +65,8 @@ function manchit_handle_settings_save() {
 		manchit_save_ads();
 	} elseif ( in_array( $tab, array( 'header', 'footer' ), true ) ) {
 		manchit_save_layout( $tab );
+	} elseif ( 'home' === $tab ) {
+		manchit_save_home_sections();
 	} else {
 		manchit_save_options();
 	}
@@ -331,6 +334,112 @@ function manchit_tab_footer( $o ) {
 }
 
 /**
+ * Persist homepage sections from the builder.
+ */
+function manchit_save_home_sections() {
+	$types    = array_keys( manchit_home_section_types() );
+	$sources  = array_keys( manchit_home_sources() );
+	$sections = array();
+
+	if ( ! empty( $_POST['manchit_home']['sections'] ) && is_array( $_POST['manchit_home']['sections'] ) ) {
+		foreach ( wp_unslash( $_POST['manchit_home']['sections'] ) as $s ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			$sections[] = array(
+				'type'        => in_array( $s['type'] ?? 'grid', $types, true ) ? $s['type'] : 'grid',
+				'title'       => sanitize_text_field( $s['title'] ?? '' ),
+				'source'      => in_array( $s['source'] ?? 'recent', $sources, true ) ? $s['source'] : 'recent',
+				'term'        => (int) ( $s['term'] ?? 0 ),
+				'count'       => max( 1, min( 30, (int) ( $s['count'] ?? 6 ) ) ),
+				'columns'     => max( 1, min( 4, (int) ( $s['columns'] ?? 3 ) ) ),
+				'device'      => in_array( $s['device'] ?? 'all', array( 'all', 'desktop', 'mobile' ), true ) ? $s['device'] : 'all',
+				'excerpt'     => ! empty( $s['excerpt'] ) ? 1 : 0,
+				'ad_location' => sanitize_key( $s['ad_location'] ?? '' ),
+				'tabs'        => array_filter( array_map( 'intval', explode( ',', (string) ( $s['tabs'] ?? '' ) ) ) ),
+			);
+		}
+	}
+	$opts                  = manchit_get_options();
+	$opts['home_sections'] = $sections;
+	update_option( 'manchit_options', $opts );
+}
+
+/**
+ * Homepage builder tab.
+ *
+ * @param array $o Options.
+ */
+function manchit_tab_home( $o ) {
+	if ( 'builder' !== ( $o['homepage_style'] ?? 'magazine' ) ) {
+		echo '<p class="manchit-hint">' . esc_html__( 'لتفعيل هذه الأقسام: اذهب إلى تبويب «التخطيط» واختر «منشئ الأقسام» في نمط الصفحة الرئيسية.', 'manchit' ) . '</p>';
+	}
+	echo '<div id="manchit-home-sections">';
+	$sections = manchit_home_sections();
+	foreach ( $sections as $i => $s ) {
+		manchit_render_home_section_row( $i, $s );
+	}
+	echo '</div>';
+	echo '<p><button type="button" class="button" id="manchit-add-section">' . esc_html__( '+ إضافة قسم', 'manchit' ) . '</button></p>';
+	echo '<script type="text/template" id="manchit-section-template">';
+	manchit_render_home_section_row( '__INDEX__', array( 'type' => 'grid', 'source' => 'recent', 'count' => 6, 'columns' => 3, 'device' => 'all' ) );
+	echo '</script>';
+}
+
+/**
+ * Render one homepage section admin row.
+ *
+ * @param int|string $i Index.
+ * @param array      $s Section.
+ */
+function manchit_render_home_section_row( $i, $s ) {
+	$name = "manchit_home[sections][$i]";
+	?>
+	<div class="manchit-ad-unit">
+		<div class="manchit-ad-unit__head">
+			<input type="text" name="<?php echo esc_attr( $name ); ?>[title]" value="<?php echo esc_attr( $s['title'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'عنوان القسم (اختياري)', 'manchit' ); ?>" class="regular-text">
+			<button type="button" class="button-link manchit-remove-ad" aria-label="<?php esc_attr_e( 'حذف', 'manchit' ); ?>">&times;</button>
+		</div>
+		<div class="manchit-ad-unit__grid">
+			<label><?php esc_html_e( 'النوع', 'manchit' ); ?>
+				<select name="<?php echo esc_attr( $name ); ?>[type]">
+					<?php foreach ( manchit_home_section_types() as $val => $label ) : ?>
+						<option value="<?php echo esc_attr( $val ); ?>" <?php selected( $s['type'] ?? 'grid', $val ); ?>><?php echo esc_html( $label ); ?></option>
+					<?php endforeach; ?>
+				</select>
+			</label>
+			<label><?php esc_html_e( 'المصدر', 'manchit' ); ?>
+				<select name="<?php echo esc_attr( $name ); ?>[source]">
+					<?php foreach ( manchit_home_sources() as $val => $label ) : ?>
+						<option value="<?php echo esc_attr( $val ); ?>" <?php selected( $s['source'] ?? 'recent', $val ); ?>><?php echo esc_html( $label ); ?></option>
+					<?php endforeach; ?>
+				</select>
+			</label>
+			<label><?php esc_html_e( 'رقم التصنيف/الكاتب/الوسم', 'manchit' ); ?>
+				<input type="number" min="0" name="<?php echo esc_attr( $name ); ?>[term]" value="<?php echo esc_attr( $s['term'] ?? 0 ); ?>">
+			</label>
+			<label><?php esc_html_e( 'العدد', 'manchit' ); ?>
+				<input type="number" min="1" max="30" name="<?php echo esc_attr( $name ); ?>[count]" value="<?php echo esc_attr( $s['count'] ?? 6 ); ?>">
+			</label>
+			<label><?php esc_html_e( 'الأعمدة', 'manchit' ); ?>
+				<input type="number" min="1" max="4" name="<?php echo esc_attr( $name ); ?>[columns]" value="<?php echo esc_attr( $s['columns'] ?? 3 ); ?>">
+			</label>
+			<label><?php esc_html_e( 'الجهاز', 'manchit' ); ?>
+				<select name="<?php echo esc_attr( $name ); ?>[device]">
+					<option value="all" <?php selected( $s['device'] ?? 'all', 'all' ); ?>><?php esc_html_e( 'الكل', 'manchit' ); ?></option>
+					<option value="desktop" <?php selected( $s['device'] ?? '', 'desktop' ); ?>><?php esc_html_e( 'كمبيوتر', 'manchit' ); ?></option>
+					<option value="mobile" <?php selected( $s['device'] ?? '', 'mobile' ); ?>><?php esc_html_e( 'جوال', 'manchit' ); ?></option>
+				</select>
+			</label>
+		</div>
+		<label class="manchit-ad-code"><?php esc_html_e( 'تبويبات (أرقام تصنيفات مفصولة بفواصل — لنوع «تبويبات» فقط)', 'manchit' ); ?>
+			<input type="text" name="<?php echo esc_attr( $name ); ?>[tabs]" value="<?php echo esc_attr( is_array( $s['tabs'] ?? '' ) ? implode( ',', $s['tabs'] ) : ( $s['tabs'] ?? '' ) ); ?>" class="regular-text" dir="ltr" placeholder="3,7,12">
+		</label>
+		<label class="manchit-ad-slot"><?php esc_html_e( 'موضع الإعلان (لنوع «إعلان» فقط)', 'manchit' ); ?>
+			<input type="text" name="<?php echo esc_attr( $name ); ?>[ad_location]" value="<?php echo esc_attr( $s['ad_location'] ?? '' ); ?>" class="regular-text" dir="ltr" placeholder="archive_inline">
+		</label>
+	</div>
+	<?php
+}
+
+/**
  * Map of option keys → field type for a tab (used to reconcile checkboxes).
  *
  * @param string $tab Tab key.
@@ -531,7 +640,8 @@ function manchit_tab_layout( $o ) {
 		'magazine' => __( 'مجلة (هيرو + شبكة)', 'manchit' ),
 		'grid'     => __( 'شبكة', 'manchit' ),
 		'list'     => __( 'قائمة', 'manchit' ),
-	) ) );
+		'builder'  => __( 'منشئ الأقسام (تبويب الصفحة الرئيسية)', 'manchit' ),
+	) ), __( 'اختر «منشئ الأقسام» ثم اضبط الأقسام من تبويب «الصفحة الرئيسية».', 'manchit' ) );
 	manchit_field_row( __( 'تصفّح الأرشيف', 'manchit' ), manchit_select( 'archive_more', $o['archive_more'], array(
 		'numbers'  => __( 'أرقام صفحات', 'manchit' ),
 		'loadmore' => __( 'زر «تحميل المزيد»', 'manchit' ),

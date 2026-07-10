@@ -12,6 +12,13 @@ get_header();
 
 $style   = manchit_get_option( 'homepage_style', 'magazine' );
 $is_first = ! is_paged();
+
+// Section builder homepage (front page, first page only).
+if ( 'builder' === $style && $is_first && is_front_page() ) {
+	manchit_render_home_sections();
+	get_footer();
+	return;
+}
 ?>
 
 <div class="mn-container">

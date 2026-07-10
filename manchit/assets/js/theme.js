@@ -405,6 +405,38 @@
 		}
 	})();
 
+	/* ---------------------------------------------------------------
+	 * Homepage category tabs (accessible)
+	 * ------------------------------------------------------------- */
+	$all('.mn-tabs').forEach(function (tabs) {
+		var btns = $all('.mn-tabs__btn', tabs);
+		var panels = $all('.mn-tabs__panel', tabs);
+		function activate(idx) {
+			btns.forEach(function (b, i) {
+				var on = i === idx;
+				b.classList.toggle('is-active', on);
+				b.setAttribute('aria-selected', on ? 'true' : 'false');
+			});
+			panels.forEach(function (p, i) {
+				var on = i === idx;
+				p.classList.toggle('is-active', on);
+				if (on) { p.removeAttribute('hidden'); } else { p.setAttribute('hidden', ''); }
+			});
+		}
+		btns.forEach(function (b, i) {
+			on(b, 'click', function () { activate(i); });
+			on(b, 'keydown', function (e) {
+				if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+					e.preventDefault();
+					var dir = e.key === 'ArrowLeft' ? 1 : -1; // RTL-aware
+					var next = (i + dir + btns.length) % btns.length;
+					btns[next].focus();
+					activate(next);
+				}
+			});
+		});
+	});
+
 	/* Mark JS as ready for progressive styling. */
 	root.classList.add('mn-js');
 })();

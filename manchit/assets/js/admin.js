@@ -60,6 +60,29 @@
 			toggleType($(this));
 		});
 
+		// Homepage sections repeater.
+		var $sWrap = $('#manchit-home-sections');
+		var sTpl = $('#manchit-section-template').html();
+		function reindexSections() {
+			$sWrap.children('.manchit-ad-unit').each(function (i) {
+				$(this).find('[name]').each(function () {
+					var n = $(this).attr('name');
+					if (n) { $(this).attr('name', n.replace(/sections\]\[(?:\d+|__INDEX__)\]/, 'sections][' + i + ']')); }
+				});
+			});
+		}
+		$('#manchit-add-section').on('click', function () {
+			var idx = $sWrap.children('.manchit-ad-unit').length;
+			$sWrap.append($(sTpl.replace(/__INDEX__/g, idx)));
+			reindexSections();
+		});
+		if ($sWrap.length) {
+			$sWrap.on('click', '.manchit-remove-ad', function () {
+				$(this).closest('.manchit-ad-unit').remove();
+				reindexSections();
+			});
+		}
+
 		// Native color inputs (fallback to type=color if wp-color-picker absent).
 		$('[data-manchit-color]').each(function () {
 			var $input = $(this);
