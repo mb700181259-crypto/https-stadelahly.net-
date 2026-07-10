@@ -3,7 +3,7 @@ Contributors: manchit
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: news, magazine, blog, rtl-language-support, custom-colors, custom-logo, featured-images, threaded-comments, translation-ready
@@ -72,6 +72,11 @@ Manchit (مانشيت) قالب أخبار عربي احترافي بُني من
 لا إطلاقًا. ‏١٠٠٪ من الأرباح لك.
 
 == سجل التغييرات ==
+
+= 1.2.1 =
+* كتلة أسئلة شائعة [faq] مع بيانات FAQPage المنظمة (نتائج غنية في جوجل).
+* روابط التصنيفات الفرعية في صفحات الأرشيف (تنقّل أسرع + سيو).
+* مراجعة شاملة: فحص كل ملفات PHP/JS، واكتمال قوالب ووردبريس.
 
 = 1.2.0 =
 * نظام إعلانات متقدّم يتفوّق على القوالب التجارية: تكامل AdSense مُدار (معرف ناشر + وحدات slot)، الإعلانات التلقائية (Auto Ads)، دعم AMP، تحميل كسول للإعلانات، و11 موضعاً.

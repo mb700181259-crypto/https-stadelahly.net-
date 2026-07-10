@@ -4,7 +4,7 @@ Theme URI: https://stadelahly.net/
 Author: Manchit
 Author URI: https://stadelahly.net/
 Description: قالب أخبار احترافي فائق السرعة، مُحسّن بالكامل لسيو جوجل نيوز واكتشاف جوجل (Discover) واقتراحات جوجل. مبني لتجربة قراءة بصرية آسرة، مع نظام إعلانات وخطوط عربية متقدم، ودعم كامل للعربية (RTL) والوضع الليلي/النهاري. A blazing-fast, SEO-first news theme engineered for Google News, Google Discover and Google Suggest.
-Version: 1.2.0
+Version: 1.2.1
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
@@ -378,7 +378,8 @@ ul[role="list"], ol[role="list"] { list-style: none; padding: 0; }
 /* FAQ */
 .mn-faq { margin-block: 1.8rem; }
 .mn-faq__item { border: 1px solid var(--mn-border); border-radius: var(--mn-radius-sm); margin-block-end: .6rem; overflow: hidden; background: var(--mn-surface); }
-.mn-faq__q { width: 100%; text-align: start; padding: .9rem 1.1rem; font-weight: 800; font-family: var(--mn-font-head); display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.mn-faq__q { width: 100%; text-align: start; padding: .9rem 1.1rem; font-weight: 800; font-family: var(--mn-font-head); display: flex; align-items: center; justify-content: space-between; gap: 1rem; cursor: pointer; list-style: none; }
+.mn-faq__q::-webkit-details-marker { display: none; }
 .mn-faq__q::after { content: "+"; color: var(--mn-brand); font-size: 1.4rem; transition: transform var(--mn-dur); }
 .mn-faq__item[open] .mn-faq__q::after { transform: rotate(45deg); }
 .mn-faq__a { padding: 0 1.1rem 1.1rem; color: var(--mn-text-soft); }
@@ -421,6 +422,11 @@ ul[role="list"], ol[role="list"] { list-style: none; padding: 0; }
 
 /* Full-width ad card inside a grid */
 .mn-cards__ad { grid-column: 1 / -1; }
+
+/* Subcategory chips on archives */
+.mn-subcats { display: flex; flex-wrap: wrap; gap: .5rem; margin-block-end: var(--mn-gap); }
+.mn-subcats a { background: var(--mn-surface); border: 1px solid var(--mn-border); color: var(--mn-text-soft); font-size: .85rem; font-weight: 700; padding: .35em .9em; border-radius: var(--mn-radius-pill); }
+.mn-subcats a:hover { background: var(--mn-brand); color: #fff; border-color: var(--mn-brand); }
 
 /* ==========================================================================
    Buttons / pagination

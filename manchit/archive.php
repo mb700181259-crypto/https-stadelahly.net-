@@ -23,6 +23,8 @@ get_header();
 				</div>
 			</header>
 
+			<?php manchit_subcategories(); ?>
+
 			<?php if ( have_posts() ) : ?>
 				<div class="mn-cards">
 					<?php

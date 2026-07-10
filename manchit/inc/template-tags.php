@@ -195,6 +195,37 @@ function manchit_pagination() {
 }
 
 /**
+ * Subcategory chips on category/taxonomy archives (quick navigation + SEO).
+ *
+ * @param WP_Term|null $term Term (defaults to queried object).
+ */
+function manchit_subcategories( $term = null ) {
+	if ( ! is_category() && ! is_tax() ) {
+		return;
+	}
+	$term = $term ?: get_queried_object();
+	if ( ! $term || empty( $term->taxonomy ) ) {
+		return;
+	}
+	$children = get_terms(
+		array(
+			'taxonomy'   => $term->taxonomy,
+			'parent'     => $term->term_id,
+			'hide_empty' => true,
+			'number'     => 30,
+		)
+	);
+	if ( empty( $children ) || is_wp_error( $children ) ) {
+		return;
+	}
+	echo '<div class="mn-subcats" aria-label="' . esc_attr__( 'التصنيفات الفرعية', 'manchit' ) . '">';
+	foreach ( $children as $child ) {
+		printf( '<a href="%s">%s</a>', esc_url( get_term_link( $child ) ), esc_html( $child->name ) );
+	}
+	echo '</div>';
+}
+
+/**
  * Archive navigation: numbered pagination, a "load more" button, or infinite
  * scroll — based on the "archive_more" option. Load-more/infinite append cards
  * via fetch in theme.js (no page reload).
