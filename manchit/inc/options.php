@@ -79,6 +79,10 @@ function manchit_default_options() {
 		'webp_swap'            => 0, // serve .webp siblings when present
 		'ads_preconnect'       => 1, // preconnect to ad networks when ads on
 
+		// Revenue sharing (author ad split — off by default).
+		'rs_enable'            => 0,
+		'rs_ratio'             => 50,
+
 		// Footer.
 		'copyright_text'       => '',
 		'footer_columns'       => 4,

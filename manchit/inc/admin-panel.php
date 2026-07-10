@@ -168,6 +168,14 @@ function manchit_save_ads() {
 	$ads['units'] = $units;
 
 	update_option( 'manchit_ads', $ads );
+
+	// Revenue-share settings live on the ads tab but belong to manchit_options.
+	$opts              = manchit_get_options();
+	$opts['rs_enable'] = ! empty( $_POST['manchit_options']['rs_enable'] ) ? 1 : 0;
+	if ( isset( $_POST['manchit_options']['rs_ratio'] ) ) {
+		$opts['rs_ratio'] = max( 0, min( 100, (int) $_POST['manchit_options']['rs_ratio'] ) );
+	}
+	update_option( 'manchit_options', $opts );
 }
 
 /**
@@ -460,6 +468,15 @@ function manchit_tab_ads( $o ) {
 	<p>
 		<button type="button" class="button" id="manchit-add-ad"><?php esc_html_e( '+ إضافة وحدة إعلانية', 'manchit' ); ?></button>
 	</p>
+
+	<hr>
+	<h2><?php esc_html_e( 'مشاركة أرباح الإعلانات مع الكتّاب', 'manchit' ); ?></h2>
+	<p class="manchit-hint"><?php esc_html_e( 'يتيح لكل كاتب وضع كود AdSense الخاص به في ملفه الشخصي، ليظهر على مقالاته بنسبة تحددها بدل إعلانات الموقع. شفاف بالكامل وتحت تحكمك — بلا أي حقن أو نسبة للمطوّر.', 'manchit' ); ?></p>
+	<?php
+	$o_rs = manchit_get_options();
+	manchit_field_row( __( 'تفعيل مشاركة الأرباح', 'manchit' ), manchit_toggle( 'rs_enable', $o_rs['rs_enable'], __( 'تفعيل النظام', 'manchit' ) ) );
+	manchit_field_row( __( 'النسبة العامة لظهور إعلانات الكاتب (%)', 'manchit' ), manchit_input( 'rs_ratio', $o_rs['rs_ratio'], 'number', 'min="0" max="100"' ), __( 'مثال: 50 = نصف مشاهدات مقالات الكاتب تعرض كوده. يمكن تخصيص نسبة لكل كاتب من ملفه.', 'manchit' ) );
+	?>
 
 	<script type="text/template" id="manchit-ad-template">
 		<?php manchit_render_ad_unit_row( '__INDEX__', array( 'title' => '', 'location' => 'before_content', 'code' => '', 'paragraph' => 3, 'devices' => 'all', 'status' => 1 ), $locations ); ?>

@@ -151,6 +151,9 @@ function manchit_ad_markup( $unit ) {
 	$sticky = ( 'footer_sticky' === ( $unit['location'] ?? '' ) ) ? ' mn-ad--sticky' : '';
 	$close  = $sticky ? '<button class="mn-ad__close" type="button" aria-label="' . esc_attr__( 'إغلاق الإعلان', 'manchit' ) . '" data-mn-ad-close>&times;</button>' : '';
 
+	// Allow modules (e.g. author revenue sharing) to swap the ad code.
+	$code = apply_filters( 'manchit_ad_code', $unit['code'], $unit );
+
 	return sprintf(
 		'<div class="mn-ad%1$s%2$s"><span class="mn-ad__label">%3$s</span>%4$s<div class="mn-ad__inner">%5$s</div></div>',
 		esc_attr( $device_class ),
@@ -158,7 +161,7 @@ function manchit_ad_markup( $unit ) {
 		esc_html__( 'إعلان', 'manchit' ),
 		$close,
 		// Ad code is intentionally unescaped (AdSense/GAM/HTML) — admin-only input.
-		do_shortcode( $unit['code'] )
+		do_shortcode( $code )
 	);
 }
 

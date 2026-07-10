@@ -17,7 +17,12 @@ function manchit_enqueue_assets() {
 
 	// Main stylesheet. The design system uses CSS logical properties so a single
 	// stylesheet renders correctly in both RTL and LTR — no separate rtl.css.
-	wp_enqueue_style( 'manchit-style', get_stylesheet_uri(), array(), $ver );
+	// Serve the minified build in production; fall back to the source when
+	// debugging or if the minified file is missing.
+	$min_rel = 'assets/css/style.min.css';
+	$use_min = ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) && file_exists( MANCHIT_DIR . $min_rel );
+	$css_src = $use_min ? MANCHIT_URI . $min_rel : get_stylesheet_uri();
+	wp_enqueue_style( 'manchit-style', $css_src, array(), $ver );
 
 	// Theme JS — no jQuery dependency, deferred via performance module.
 	wp_enqueue_script( 'manchit-theme', MANCHIT_URI . 'assets/js/theme.js', array(), $ver, true );
