@@ -1,0 +1,98 @@
+/* arbah Pro — reading UX: dark mode, reading progress, back-to-top.
+   Theme-agnostic and additive; nothing here overrides the arbah design
+   unless the reader opts in (dark toggle). */
+
+/* ---------- Floating controls ---------- */
+.arbah-pro-fab {
+	position: fixed;
+	inset-block-end: 20px;
+	inset-inline-end: 20px;
+	z-index: 9990;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.arbah-pro-fab button {
+	inline-size: 46px;
+	block-size: 46px;
+	border: 0;
+	border-radius: 50%;
+	cursor: pointer;
+	background: #1a1a1a;
+	color: #fff;
+	font-size: 20px;
+	line-height: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 4px 14px rgba(0, 0, 0, .25);
+	transition: transform .15s ease, opacity .2s ease, background .2s ease;
+}
+
+.arbah-pro-fab button:hover {
+	transform: translateY(-2px);
+}
+
+.arbah-pro-fab button:focus-visible {
+	outline: 2px solid #4c9ffe;
+	outline-offset: 2px;
+}
+
+/* Back-to-top hidden until the reader scrolls down. */
+.arbah-pro-top {
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+}
+
+.arbah-pro-top.is-visible {
+	opacity: 1;
+	visibility: visible;
+	pointer-events: auto;
+}
+
+/* ---------- Reading progress ---------- */
+.arbah-pro-progress {
+	position: fixed;
+	inset-block-start: 0;
+	inset-inline-start: 0;
+	inline-size: 0;
+	block-size: 3px;
+	z-index: 9995;
+	background: linear-gradient(90deg, #4c9ffe, #1e6fe0);
+	transition: width .08s linear;
+	will-change: width;
+}
+
+/* ---------- Dark mode (opt-in, theme-agnostic) ---------- */
+html[data-theme="dark"] {
+	background: #ffffff;
+	filter: invert(1) hue-rotate(180deg);
+}
+
+/* Re-invert real content so images/media keep true colors. */
+html[data-theme="dark"] img,
+html[data-theme="dark"] picture,
+html[data-theme="dark"] video,
+html[data-theme="dark"] iframe,
+html[data-theme="dark"] embed,
+html[data-theme="dark"] object,
+html[data-theme="dark"] svg image,
+html[data-theme="dark"] .arbah-no-invert,
+html[data-theme="dark"] [style*="background-image"] {
+	filter: invert(1) hue-rotate(180deg);
+}
+
+/* Keep the floating controls readable in dark mode (they live on <html>). */
+html[data-theme="dark"] .arbah-pro-fab button {
+	background: #f1f1f1;
+	color: #111;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.arbah-pro-progress,
+	.arbah-pro-fab button {
+		transition: none;
+	}
+}
