@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MANCHIT_VERSION', '1.1.0' );
+define( 'MANCHIT_VERSION', '1.2.0' );
 define( 'MANCHIT_DIR', trailingslashit( get_template_directory() ) );
 define( 'MANCHIT_URI', trailingslashit( get_template_directory_uri() ) );
 

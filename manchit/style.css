@@ -4,7 +4,7 @@ Theme URI: https://stadelahly.net/
 Author: Manchit
 Author URI: https://stadelahly.net/
 Description: قالب أخبار احترافي فائق السرعة، مُحسّن بالكامل لسيو جوجل نيوز واكتشاف جوجل (Discover) واقتراحات جوجل. مبني لتجربة قراءة بصرية آسرة، مع نظام إعلانات وخطوط عربية متقدم، ودعم كامل للعربية (RTL) والوضع الليلي/النهاري. A blazing-fast, SEO-first news theme engineered for Google News, Google Discover and Google Suggest.
-Version: 1.1.0
+Version: 1.2.0
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
@@ -401,6 +401,26 @@ ul[role="list"], ol[role="list"] { list-style: none; padding: 0; }
 .mn-ad--sticky { position: fixed; bottom: 0; inset-inline: 0; z-index: var(--mn-z-overlay); background: var(--mn-surface); border-top: 1px solid var(--mn-border); padding: .5rem; margin: 0; box-shadow: 0 -4px 20px rgba(0,0,0,.12); }
 .mn-ad--sticky .mn-ad__close { position: absolute; top: -14px; inset-inline-end: 8px; width: 28px; height: 28px; border-radius: 50%; background: var(--mn-brand); color: #fff; display: grid; place-items: center; box-shadow: var(--mn-shadow); }
 .mn-ad ins, .mn-ad img { margin-inline: auto; }
+.mn-ad[data-mn-ad-lazy] { min-height: 90px; }
+.mn-ad--mobile-only { display: none; }
+@media (max-width: 767px) { .mn-ad--mobile-only { display: block; } .mn-ad--desktop-only { display: none; } }
+
+/* Autoload next article */
+.mn-autoload { min-height: 60px; margin-block: var(--mn-gap-lg); text-align: center; }
+.mn-autoload__hint { color: var(--mn-text-mute); font-weight: 700; font-size: .9rem; margin-block-end: .8rem; }
+.mn-autoload__skel { display: block; width: 100%; height: 180px; border-radius: var(--mn-radius); }
+.mn-autoload.is-loading .mn-autoload__hint::after { content: " ⏳"; }
+.mn-autoload__sep { display: flex; align-items: center; gap: 1rem; margin-block: var(--mn-gap-lg) var(--mn-gap); color: var(--mn-brand); font-family: var(--mn-font-head); font-weight: 800; font-size: .9rem; text-align: start; }
+.mn-autoload__sep::before, .mn-autoload__sep::after { content: ""; flex: 1; height: 2px; background: var(--mn-border); }
+
+/* Load more */
+.mn-loadmore { display: flex; justify-content: center; margin-block: var(--mn-gap-lg); }
+.mn-loadmore__btn.is-loading { opacity: .6; pointer-events: none; }
+.mn-loadmore__btn.is-loading::after { content: ""; width: 1em; height: 1em; margin-inline-start: .5em; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; display: inline-block; animation: mn-spin .7s linear infinite; }
+@keyframes mn-spin { to { transform: rotate(360deg); } }
+
+/* Full-width ad card inside a grid */
+.mn-cards__ad { grid-column: 1 / -1; }
 
 /* ==========================================================================
    Buttons / pagination

@@ -26,7 +26,7 @@ get_header();
 					endwhile;
 					?>
 				</div>
-				<?php manchit_pagination(); ?>
+				<?php manchit_posts_nav(); ?>
 			<?php else : ?>
 				<?php get_template_part( 'template-parts/content', 'none' ); ?>
 			<?php endif; ?>

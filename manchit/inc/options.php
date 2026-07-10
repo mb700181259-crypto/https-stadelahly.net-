@@ -55,7 +55,12 @@ function manchit_default_options() {
 		'related_count'        => 6,
 		'related_by'           => 'category', // category | tag
 		'show_prev_next'       => 1,
+		'autoload_next'        => 1, // infinite scroll to the next article
+		'share_top'            => 1, // share bar above content too
 		'excerpt_length'       => 22,
+
+		// Archive.
+		'archive_more'         => 'numbers', // numbers | loadmore | infinite
 
 		// SEO / News / Discover.
 		'enable_schema'        => 1,

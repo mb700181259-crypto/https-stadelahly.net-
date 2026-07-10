@@ -195,6 +195,34 @@ function manchit_pagination() {
 }
 
 /**
+ * Archive navigation: numbered pagination, a "load more" button, or infinite
+ * scroll — based on the "archive_more" option. Load-more/infinite append cards
+ * via fetch in theme.js (no page reload).
+ */
+function manchit_posts_nav() {
+	global $wp_query;
+	$mode = manchit_get_option( 'archive_more', 'numbers' );
+
+	if ( 'numbers' === $mode || empty( $wp_query->max_num_pages ) || $wp_query->max_num_pages < 2 ) {
+		manchit_pagination();
+		return;
+	}
+
+	$current = max( 1, (int) get_query_var( 'paged' ) );
+	if ( $current >= (int) $wp_query->max_num_pages ) {
+		return;
+	}
+	$next_url = get_pagenum_link( $current + 1 );
+
+	printf(
+		'<div class="mn-loadmore" data-next="%s" data-infinite="%d"><button class="mn-btn mn-btn--ghost mn-loadmore__btn" type="button" data-mn-loadmore>%s</button></div>',
+		esc_url( $next_url ),
+		'infinite' === $mode ? 1 : 0,
+		esc_html__( 'تحميل المزيد', 'manchit' )
+	);
+}
+
+/**
  * Inline SVG icon set (no external requests, tiny).
  *
  * @param string $name Icon key.

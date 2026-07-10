@@ -145,23 +145,32 @@ function manchit_save_ads() {
 	$ads['enabled']        = ! empty( $_POST['manchit_ads']['enabled'] ) ? 1 : 0;
 	$ads['lazy']           = ! empty( $_POST['manchit_ads']['lazy'] ) ? 1 : 0;
 	$ads['hide_logged_in'] = ! empty( $_POST['manchit_ads']['hide_logged_in'] ) ? 1 : 0;
+	$ads['auto_ads']       = ! empty( $_POST['manchit_ads']['auto_ads'] ) ? 1 : 0;
+	$ads['adsense_client'] = isset( $_POST['manchit_ads']['adsense_client'] ) ? sanitize_text_field( wp_unslash( $_POST['manchit_ads']['adsense_client'] ) ) : '';
 
 	$units = array();
 	if ( ! empty( $_POST['manchit_ads']['units'] ) && is_array( $_POST['manchit_ads']['units'] ) ) {
 		$locations = array_keys( manchit_ad_locations() );
+		$scopes    = array_keys( manchit_ad_scopes() );
 		foreach ( wp_unslash( $_POST['manchit_ads']['units'] ) as $unit ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			$code = trim( (string) ( $unit['code'] ?? '' ) );
-			if ( '' === $code && '' === trim( (string) ( $unit['title'] ?? '' ) ) ) {
+			$slot = trim( (string) ( $unit['ad_slot'] ?? '' ) );
+			if ( '' === $code && '' === $slot && '' === trim( (string) ( $unit['title'] ?? '' ) ) ) {
 				continue;
 			}
 			$units[] = array(
-				'title'     => sanitize_text_field( $unit['title'] ?? '' ),
-				'location'  => in_array( $unit['location'] ?? '', $locations, true ) ? $unit['location'] : 'before_content',
+				'title'      => sanitize_text_field( $unit['title'] ?? '' ),
+				'type'       => in_array( $unit['type'] ?? 'code', array( 'code', 'adsense' ), true ) ? $unit['type'] : 'code',
+				'location'   => in_array( $unit['location'] ?? '', $locations, true ) ? $unit['location'] : 'before_content',
 				// Ad code may contain <script>/AdSense — allowed for admins only.
-				'code'      => $code,
-				'paragraph' => max( 1, (int) ( $unit['paragraph'] ?? 3 ) ),
-				'devices'   => in_array( $unit['devices'] ?? 'all', array( 'all', 'mobile', 'desktop' ), true ) ? $unit['devices'] : 'all',
-				'status'    => ! empty( $unit['status'] ) ? 1 : 0,
+				'code'       => $code,
+				'ad_slot'    => sanitize_text_field( $slot ),
+				'paragraph'  => max( 1, (int) ( $unit['paragraph'] ?? 3 ) ),
+				'devices'    => in_array( $unit['devices'] ?? 'all', array( 'all', 'mobile', 'desktop' ), true ) ? $unit['devices'] : 'all',
+				'scope'      => in_array( $unit['scope'] ?? 'all', $scopes, true ) ? $unit['scope'] : 'all',
+				'categories' => array_filter( array_map( 'intval', (array) ( $unit['categories'] ?? array() ) ) ),
+				'post_types' => array_filter( array_map( 'sanitize_key', (array) ( $unit['post_types'] ?? array() ) ) ),
+				'status'     => ! empty( $unit['status'] ) ? 1 : 0,
 			);
 		}
 	}
@@ -209,6 +218,8 @@ function manchit_option_keys_for_tab( $tab ) {
 			'show_share'            => 'checkbox',
 			'show_related'          => 'checkbox',
 			'show_prev_next'        => 'checkbox',
+			'share_top'             => 'checkbox',
+			'autoload_next'         => 'checkbox',
 		),
 		'seo'     => array(
 			'enable_schema'           => 'checkbox',
@@ -371,6 +382,11 @@ function manchit_tab_layout( $o ) {
 		'grid'     => __( 'شبكة', 'manchit' ),
 		'list'     => __( 'قائمة', 'manchit' ),
 	) ) );
+	manchit_field_row( __( 'تصفّح الأرشيف', 'manchit' ), manchit_select( 'archive_more', $o['archive_more'], array(
+		'numbers'  => __( 'أرقام صفحات', 'manchit' ),
+		'loadmore' => __( 'زر «تحميل المزيد»', 'manchit' ),
+		'infinite' => __( 'تمرير لا نهائي', 'manchit' ),
+	) ) );
 	manchit_field_row( __( 'هيدر ثابت', 'manchit' ), manchit_toggle( 'sticky_header', $o['sticky_header'], __( 'تثبيت الهيدر عند التمرير', 'manchit' ) ) );
 	manchit_field_row( __( 'إخفاء الهيدر عند النزول', 'manchit' ), manchit_toggle( 'hide_header_on_scroll', $o['hide_header_on_scroll'], __( 'إظهاره عند الصعود فقط', 'manchit' ) ) );
 	manchit_field_row( __( 'الشريط العلوي', 'manchit' ), manchit_toggle( 'show_topbar', $o['show_topbar'], __( 'إظهار الشريط العلوي (التاريخ/قائمة علوية)', 'manchit' ) ) );
@@ -398,6 +414,8 @@ function manchit_tab_article( $o ) {
 	manchit_field_row( __( 'مقالات ذات صلة', 'manchit' ), manchit_toggle( 'show_related', $o['show_related'], __( 'عرض مقالات ذات صلة', 'manchit' ) ) );
 	manchit_field_row( __( 'عدد المقالات ذات الصلة', 'manchit' ), manchit_input( 'related_count', $o['related_count'], 'number', 'min="2" max="12"' ) );
 	manchit_field_row( __( 'التنقل بين المقالات', 'manchit' ), manchit_toggle( 'show_prev_next', $o['show_prev_next'], __( 'روابط المقال السابق/التالي', 'manchit' ) ) );
+	manchit_field_row( __( 'أزرار المشاركة أعلى المقال', 'manchit' ), manchit_toggle( 'share_top', $o['share_top'], __( 'شريط مشاركة فوق المحتوى أيضاً', 'manchit' ) ) );
+	manchit_field_row( __( 'التمرير التلقائي للمقال التالي', 'manchit' ), manchit_toggle( 'autoload_next', $o['autoload_next'], __( 'تحميل المقال التالي تلقائياً عند نهاية القراءة (قراءة لا نهائية)', 'manchit' ) ), __( 'يزيد مشاهدات الصفحات ومدة البقاء.', 'manchit' ) );
 	manchit_field_row( __( 'طول المقتطف (كلمات)', 'manchit' ), manchit_input( 'excerpt_length', $o['excerpt_length'], 'number', 'min="8" max="60"' ) );
 }
 
@@ -452,9 +470,22 @@ function manchit_tab_ads( $o ) {
 	?>
 	<div class="manchit-ads-global">
 		<label class="manchit-switch"><input type="checkbox" name="manchit_ads[enabled]" value="1" <?php checked( 1, (int) $ads['enabled'] ); ?>><span class="manchit-slider"></span> <?php esc_html_e( 'تفعيل الإعلانات', 'manchit' ); ?></label>
+		<label class="manchit-switch"><input type="checkbox" name="manchit_ads[lazy]" value="1" <?php checked( 1, (int) $ads['lazy'] ); ?>><span class="manchit-slider"></span> <?php esc_html_e( 'تحميل كسول (يظهر الإعلان عند الاقتراب منه)', 'manchit' ); ?></label>
 		<label class="manchit-switch"><input type="checkbox" name="manchit_ads[hide_logged_in]" value="1" <?php checked( 1, (int) $ads['hide_logged_in'] ); ?>><span class="manchit-slider"></span> <?php esc_html_e( 'إخفاء الإعلانات عن الأعضاء المسجلين', 'manchit' ); ?></label>
 	</div>
 	<p class="manchit-hint manchit-hint--good"><?php esc_html_e( '‏١٠٠٪ من أرباح الإعلانات لك — هذا القالب لا يحقن أي إعلانات لصالح المطوّر ولا يأخذ أي نسبة أرباح.', 'manchit' ); ?></p>
+
+	<div class="manchit-adsense-box">
+		<?php manchit_field_row(
+			__( 'معرف ناشر AdSense', 'manchit' ),
+			sprintf( '<input type="text" name="manchit_ads[adsense_client]" value="%s" class="regular-text" dir="ltr" placeholder="ca-pub-XXXXXXXXXXXXXXXX">', esc_attr( $ads['adsense_client'] ) ),
+			__( 'يُستخدم لوحدات AdSense المُدارة و«الإعلانات التلقائية». معرّفك أنت فقط.', 'manchit' )
+		); ?>
+		<?php manchit_field_row(
+			__( 'الإعلانات التلقائية (Auto Ads)', 'manchit' ),
+			sprintf( '<label class="manchit-switch"><input type="checkbox" name="manchit_ads[auto_ads]" value="1" %s><span class="manchit-slider"></span> %s</label>', checked( 1, (int) $ads['auto_ads'], false ), esc_html__( 'ترك جوجل يضع الإعلانات تلقائياً', 'manchit' ) )
+		); ?>
+	</div>
 
 	<div id="manchit-ad-units">
 		<?php
@@ -492,9 +523,13 @@ function manchit_tab_ads( $o ) {
  * @param array      $locations Location choices.
  */
 function manchit_render_ad_unit_row( $i, $unit, $locations ) {
-	$name = "manchit_ads[units][$i]";
+	$name   = "manchit_ads[units][$i]";
+	$type   = $unit['type'] ?? 'code';
+	$scopes = manchit_ad_scopes();
+	$sel_cats = array_map( 'intval', (array) ( $unit['categories'] ?? array() ) );
+	$sel_pts  = (array) ( $unit['post_types'] ?? array() );
 	?>
-	<div class="manchit-ad-unit">
+	<div class="manchit-ad-unit" data-type="<?php echo esc_attr( $type ); ?>">
 		<div class="manchit-ad-unit__head">
 			<input type="text" name="<?php echo esc_attr( $name ); ?>[title]" value="<?php echo esc_attr( $unit['title'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'اسم الوحدة (مثال: بانر أعلى المقال)', 'manchit' ); ?>" class="regular-text">
 			<label class="manchit-switch"><input type="checkbox" name="<?php echo esc_attr( $name ); ?>[status]" value="1" <?php checked( 1, (int) ( $unit['status'] ?? 1 ) ); ?>><span class="manchit-slider"></span> <?php esc_html_e( 'مفعّل', 'manchit' ); ?></label>
@@ -511,6 +546,12 @@ function manchit_render_ad_unit_row( $i, $unit, $locations ) {
 			<label class="manchit-ad-paragraph"><?php esc_html_e( 'بعد الفقرة رقم', 'manchit' ); ?>
 				<input type="number" min="1" name="<?php echo esc_attr( $name ); ?>[paragraph]" value="<?php echo esc_attr( $unit['paragraph'] ?? 3 ); ?>">
 			</label>
+			<label><?php esc_html_e( 'النوع', 'manchit' ); ?>
+				<select name="<?php echo esc_attr( $name ); ?>[type]" class="manchit-ad-type">
+					<option value="code" <?php selected( $type, 'code' ); ?>><?php esc_html_e( 'كود مخصّص', 'manchit' ); ?></option>
+					<option value="adsense" <?php selected( $type, 'adsense' ); ?>><?php esc_html_e( 'وحدة AdSense', 'manchit' ); ?></option>
+				</select>
+			</label>
 			<label><?php esc_html_e( 'الأجهزة', 'manchit' ); ?>
 				<select name="<?php echo esc_attr( $name ); ?>[devices]">
 					<option value="all" <?php selected( $unit['devices'] ?? 'all', 'all' ); ?>><?php esc_html_e( 'الكل', 'manchit' ); ?></option>
@@ -518,10 +559,50 @@ function manchit_render_ad_unit_row( $i, $unit, $locations ) {
 					<option value="desktop" <?php selected( $unit['devices'] ?? '', 'desktop' ); ?>><?php esc_html_e( 'سطح المكتب فقط', 'manchit' ); ?></option>
 				</select>
 			</label>
+			<label><?php esc_html_e( 'الظهور في', 'manchit' ); ?>
+				<select name="<?php echo esc_attr( $name ); ?>[scope]">
+					<?php foreach ( $scopes as $val => $label ) : ?>
+						<option value="<?php echo esc_attr( $val ); ?>" <?php selected( $unit['scope'] ?? 'all', $val ); ?>><?php echo esc_html( $label ); ?></option>
+					<?php endforeach; ?>
+				</select>
+			</label>
 		</div>
-		<label class="manchit-ad-code"><?php esc_html_e( 'كود الإعلان (AdSense / HTML / شورت كود)', 'manchit' ); ?>
+
+		<label class="manchit-ad-code manchit-when-code"><?php esc_html_e( 'كود الإعلان (AdSense / HTML / شورت كود)', 'manchit' ); ?>
 			<textarea name="<?php echo esc_attr( $name ); ?>[code]" rows="4" class="large-text code" dir="ltr"><?php echo esc_textarea( $unit['code'] ?? '' ); ?></textarea>
 		</label>
+		<label class="manchit-ad-slot manchit-when-adsense"><?php esc_html_e( 'رقم الوحدة الإعلانية (Ad slot ID)', 'manchit' ); ?>
+			<input type="text" name="<?php echo esc_attr( $name ); ?>[ad_slot]" value="<?php echo esc_attr( $unit['ad_slot'] ?? '' ); ?>" class="regular-text" dir="ltr" placeholder="1234567890">
+		</label>
+
+		<details class="manchit-ad-targeting">
+			<summary><?php esc_html_e( 'استهداف متقدّم (تصنيفات / أنواع)', 'manchit' ); ?></summary>
+			<div class="manchit-ad-targeting__grid">
+				<div>
+					<strong><?php esc_html_e( 'تصنيفات محددة (اتركها فارغة = الكل)', 'manchit' ); ?></strong>
+					<div class="manchit-checklist">
+						<?php
+						foreach ( get_categories( array( 'hide_empty' => false, 'number' => 200 ) ) as $cat ) :
+							?>
+							<label><input type="checkbox" name="<?php echo esc_attr( $name ); ?>[categories][]" value="<?php echo esc_attr( $cat->term_id ); ?>" <?php checked( in_array( (int) $cat->term_id, $sel_cats, true ) ); ?>> <?php echo esc_html( $cat->name ); ?></label>
+						<?php endforeach; ?>
+					</div>
+				</div>
+				<div>
+					<strong><?php esc_html_e( 'أنواع المحتوى', 'manchit' ); ?></strong>
+					<div class="manchit-checklist">
+						<?php
+						foreach ( get_post_types( array( 'public' => true ), 'objects' ) as $pt ) :
+							if ( 'attachment' === $pt->name ) {
+								continue;
+							}
+							?>
+							<label><input type="checkbox" name="<?php echo esc_attr( $name ); ?>[post_types][]" value="<?php echo esc_attr( $pt->name ); ?>" <?php checked( in_array( $pt->name, $sel_pts, true ) ); ?>> <?php echo esc_html( $pt->labels->singular_name ); ?></label>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			</div>
+		</details>
 	</div>
 	<?php
 }

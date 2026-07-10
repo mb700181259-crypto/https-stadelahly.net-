@@ -27,12 +27,19 @@
 			$unit.find('.manchit-ad-paragraph').toggle(loc === 'in_content');
 		}
 
+		function toggleType($unit) {
+			var type = $unit.find('.manchit-ad-type').val();
+			$unit.find('.manchit-when-code').toggle(type !== 'adsense');
+			$unit.find('.manchit-when-adsense').toggle(type === 'adsense');
+		}
+
 		$('#manchit-add-ad').on('click', function () {
 			var index = $wrap.children('.manchit-ad-unit').length;
 			var html = tpl.replace(/__INDEX__/g, index);
 			var $node = $(html);
 			$wrap.append($node);
 			toggleParagraph($node);
+			toggleType($node);
 			reindex();
 		});
 
@@ -44,9 +51,13 @@
 		$wrap.on('change', '.manchit-ad-location', function () {
 			toggleParagraph($(this).closest('.manchit-ad-unit'));
 		});
+		$wrap.on('change', '.manchit-ad-type', function () {
+			toggleType($(this).closest('.manchit-ad-unit'));
+		});
 
 		$wrap.children('.manchit-ad-unit').each(function () {
 			toggleParagraph($(this));
+			toggleType($(this));
 		});
 
 		// Native color inputs (fallback to type=color if wp-color-picker absent).

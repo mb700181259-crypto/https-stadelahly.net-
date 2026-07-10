@@ -247,6 +247,164 @@
 		}
 	}
 
+	/* ---------------------------------------------------------------
+	 * Re-execute <script> nodes inside a freshly-inserted container
+	 * (innerHTML/template scripts are inert until recreated).
+	 * ------------------------------------------------------------- */
+	function reexecScripts(container) {
+		$all('script', container).forEach(function (old) {
+			var s = doc.createElement('script');
+			Array.prototype.forEach.call(old.attributes, function (a) { s.setAttribute(a.name, a.value); });
+			if (!old.src) { s.textContent = old.textContent; }
+			old.parentNode.replaceChild(s, old);
+		});
+	}
+
+	/* ---------------------------------------------------------------
+	 * Lazy-load ads: reveal each unit when it nears the viewport
+	 * ------------------------------------------------------------- */
+	function revealAd(ad) {
+		var tpl = ad.querySelector('template.mn-ad__tpl');
+		if (!tpl) { return; }
+		var holder = doc.createElement('div');
+		holder.className = 'mn-ad__inner';
+		holder.appendChild(tpl.content.cloneNode(true));
+		tpl.remove();
+		ad.appendChild(holder);
+		ad.removeAttribute('data-mn-ad-lazy');
+		reexecScripts(holder);
+	}
+	function initLazyAds(rootEl) {
+		var ads = $all('[data-mn-ad-lazy]', rootEl);
+		if (!ads.length) { return; }
+		if (!('IntersectionObserver' in window)) { ads.forEach(revealAd); return; }
+		var io = new IntersectionObserver(function (entries) {
+			entries.forEach(function (e) {
+				if (e.isIntersecting) { revealAd(e.target); io.unobserve(e.target); }
+			});
+		}, { rootMargin: '400px 0px' });
+		ads.forEach(function (a) { io.observe(a); });
+	}
+	initLazyAds(doc);
+
+	/* ---------------------------------------------------------------
+	 * Autoload the next (older) article on scroll — infinite reading
+	 * ------------------------------------------------------------- */
+	function pingView(art) {
+		var pid = art.getAttribute('data-post-id');
+		if (!pid || !data.restUrl) { return; }
+		var key = 'mn-viewed-' + pid, seen = false;
+		try { seen = sessionStorage.getItem(key) === '1'; } catch (e) {}
+		if (seen) { return; }
+		fetch(data.restUrl + 'manchit/v1/view/' + pid, {
+			method: 'POST', headers: { 'X-WP-Nonce': data.nonce || '' }, keepalive: true
+		}).catch(function () {});
+		try { sessionStorage.setItem(key, '1'); } catch (e) {}
+	}
+
+	function trackForHistory(art, url) {
+		var titleEl = art.querySelector('.mn-article__title');
+		var title = titleEl ? titleEl.textContent.trim() : doc.title;
+		if (!('IntersectionObserver' in window)) { return; }
+		var io = new IntersectionObserver(function (entries) {
+			entries.forEach(function (e) {
+				if (e.isIntersecting) {
+					try { history.replaceState(null, '', url); doc.title = title; } catch (err) {}
+				}
+			});
+		}, { rootMargin: '-45% 0px -50% 0px' });
+		io.observe(art);
+	}
+
+	(function initAutoload() {
+		var sentinel = $('.mn-autoload');
+		if (!sentinel || !('IntersectionObserver' in window)) { return; }
+		var loading = false, done = false;
+
+		function loadNext() {
+			var url = sentinel.getAttribute('data-mn-next');
+			if (!url || done) { return; }
+			loading = true;
+			sentinel.classList.add('is-loading');
+			fetch(url, { credentials: 'same-origin' })
+				.then(function (r) { return r.ok ? r.text() : Promise.reject(); })
+				.then(function (html) {
+					var dom = new DOMParser().parseFromString(html, 'text/html');
+					var art = dom.querySelector('.mn-article');
+					if (!art) { done = true; sentinel.remove(); return; }
+					var sep = doc.createElement('div');
+					sep.className = 'mn-autoload__sep';
+					var titleEl = art.querySelector('.mn-article__title');
+					sep.textContent = titleEl ? titleEl.textContent.trim() : '';
+					sentinel.parentNode.insertBefore(sep, sentinel);
+					sentinel.parentNode.insertBefore(art, sentinel);
+					reexecScripts(art);
+					initLazyAds(art);
+					trackForHistory(art, url);
+					pingView(art);
+					var ns = dom.querySelector('.mn-autoload');
+					var nextUrl = ns && ns.getAttribute('data-mn-next');
+					if (nextUrl) { sentinel.setAttribute('data-mn-next', nextUrl); loading = false; sentinel.classList.remove('is-loading'); }
+					else { done = true; sentinel.remove(); }
+				})
+				.catch(function () { loading = false; sentinel.classList.remove('is-loading'); });
+		}
+
+		var io = new IntersectionObserver(function (entries) {
+			entries.forEach(function (e) { if (e.isIntersecting && !loading && !done) { loadNext(); } });
+		}, { rootMargin: '700px 0px' });
+		io.observe(sentinel);
+	})();
+
+	/* ---------------------------------------------------------------
+	 * Archive "load more" / infinite scroll (append cards via fetch)
+	 * ------------------------------------------------------------- */
+	(function initLoadMore() {
+		var btn = $('[data-mn-loadmore]');
+		if (!btn) { return; }
+		var wrap = btn.closest('.mn-loadmore');
+		var grid = $('.mn-primary .mn-cards') || $('.mn-cards');
+		if (!grid) { return; }
+		var loading = false;
+
+		function load() {
+			var url = wrap.getAttribute('data-next');
+			if (!url || loading) { return; }
+			loading = true;
+			btn.classList.add('is-loading');
+			btn.disabled = true;
+			fetch(url, { credentials: 'same-origin' })
+				.then(function (r) { return r.ok ? r.text() : Promise.reject(); })
+				.then(function (html) {
+					var dom = new DOMParser().parseFromString(html, 'text/html');
+					var srcGrid = dom.querySelector('.mn-primary .mn-cards') || dom.querySelector('.mn-cards');
+					if (srcGrid) {
+						Array.prototype.slice.call(srcGrid.children).forEach(function (c) {
+							grid.appendChild(doc.importNode(c, true));
+						});
+						initLazyAds(grid);
+					}
+					var nw = dom.querySelector('.mn-loadmore');
+					var nu = nw && nw.getAttribute('data-next');
+					if (nu) { wrap.setAttribute('data-next', nu); }
+					else { wrap.remove(); }
+					loading = false;
+					btn.classList.remove('is-loading');
+					btn.disabled = false;
+				})
+				.catch(function () { loading = false; btn.classList.remove('is-loading'); btn.disabled = false; });
+		}
+
+		on(btn, 'click', load);
+
+		if (wrap.getAttribute('data-infinite') === '1' && 'IntersectionObserver' in window) {
+			var io = new IntersectionObserver(function (entries) {
+				entries.forEach(function (e) { if (e.isIntersecting) { load(); } });
+			}, { rootMargin: '600px 0px' });
+			io.observe(wrap);
+		}
+	})();
+
 	/* Mark JS as ready for progressive styling. */
 	root.classList.add('mn-js');
 })();

@@ -20,7 +20,7 @@ while ( have_posts() ) :
 	<div class="mn-container">
 		<div class="mn-content-area">
 			<div class="mn-primary">
-				<article id="post-<?php the_ID(); ?>" <?php post_class( 'mn-article' ); ?> data-post-id="<?php the_ID(); ?>">
+				<article id="post-<?php the_ID(); ?>" <?php post_class( 'mn-article' ); ?> data-post-id="<?php the_ID(); ?>" data-mn-url="<?php the_permalink(); ?>">
 					<div class="mn-article__inner">
 
 						<?php
@@ -61,6 +61,13 @@ while ( have_posts() ) :
 								?>
 							</figure>
 						<?php endif; ?>
+
+						<?php
+						// Top share bar (above the content).
+						if ( manchit_get_option( 'show_share', 1 ) && manchit_get_option( 'share_top', 1 ) ) {
+							get_template_part( 'template-parts/share' );
+						}
+						?>
 
 						<?php
 						// Render the content once. The content filters (headings/TOC
@@ -152,6 +159,18 @@ while ( have_posts() ) :
 				// Comments.
 				if ( comments_open() || get_comments_number() ) {
 					comments_template();
+				}
+
+				// Autoload the next (older) article on scroll — infinite news reading.
+				if ( manchit_get_option( 'autoload_next', 1 ) ) {
+					$older = get_previous_post();
+					if ( $older ) {
+						printf(
+							'<div class="mn-autoload" data-mn-next="%s"><div class="mn-autoload__hint">%s</div><span class="mn-skeleton mn-autoload__skel"></span></div>',
+							esc_url( get_permalink( $older ) ),
+							esc_html__( 'المقال التالي…', 'manchit' )
+						);
+					}
 				}
 				?>
 			</div><!-- .mn-primary -->

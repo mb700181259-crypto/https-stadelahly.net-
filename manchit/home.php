@@ -80,13 +80,20 @@ $is_first = ! is_paged();
 						<div class="mn-primary">
 							<div class="mn-cards">
 								<?php
+								$mn_i = 0;
 								while ( have_posts() ) :
 									the_post();
 									get_template_part( 'template-parts/content', 'card' );
+									if ( ++$mn_i === 6 ) {
+										$mn_inline = manchit_render_ads( 'archive_inline', false );
+										if ( $mn_inline ) {
+											echo '<div class="mn-cards__ad">' . $mn_inline . '</div>'; // phpcs:ignore
+										}
+									}
 								endwhile;
 								?>
 							</div>
-							<?php manchit_pagination(); ?>
+							<?php manchit_posts_nav(); ?>
 						</div>
 						<?php get_sidebar(); ?>
 					</div>
@@ -105,7 +112,7 @@ $is_first = ! is_paged();
 						endwhile;
 						?>
 					</div>
-					<?php manchit_pagination(); ?>
+					<?php manchit_posts_nav(); ?>
 				</div>
 				<?php get_sidebar(); ?>
 			</div>
