@@ -59,6 +59,10 @@ function manchit_default_options() {
 		'show_prev_next'       => 1,
 		'autoload_next'        => 1, // infinite scroll to the next article
 		'share_top'            => 1, // share bar above content too
+		'show_font_resize'     => 1, // reader font-size control
+		'article_layout'       => 'standard', // standard | narrow | wide
+		'comments_system'      => 'wp', // wp | facebook | both
+		'fb_app_id'            => '',
 		'excerpt_length'       => 22,
 
 		// Archive.

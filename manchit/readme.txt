@@ -3,7 +3,7 @@ Contributors: manchit
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.5.0
+Stable tag: 1.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: news, magazine, blog, rtl-language-support, custom-colors, custom-logo, featured-images, threaded-comments, translation-ready
@@ -72,6 +72,11 @@ Manchit (مانشيت) قالب أخبار عربي احترافي بُني من
 لا إطلاقًا. ‏١٠٠٪ من الأرباح لك.
 
 == سجل التغييرات ==
+
+= 1.6.0 =
+* المرحلة 4 (المقال): عنوان فرعي اختياري لكل مقال، وتخطيطات (قياسي/عمود مركزي/عريض) قابلة للتجاوز لكل مقال.
+* تحكم القارئ في حجم الخط (أ−/أ/أ+) محفوظ محلياً، وكتلة مصادر واستشهادات [sources]/[src].
+* نظام تعليقات قابل للاختيار: ووردبريس / فيسبوك / الاثنان (فيسبوك خيار منفصل تماماً).
 
 = 1.5.0 =
 * المرحلة 3: منشئ الصفحة الرئيسية بأقسام قابلة للترتيب (هيرو/شبكة/قائمة/الأكثر قراءة/تبويبات/إعلان).

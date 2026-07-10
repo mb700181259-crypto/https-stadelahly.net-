@@ -4,7 +4,7 @@ Theme URI: https://stadelahly.net/
 Author: Manchit
 Author URI: https://stadelahly.net/
 Description: قالب أخبار احترافي فائق السرعة، مُحسّن بالكامل لسيو جوجل نيوز واكتشاف جوجل (Discover) واقتراحات جوجل. مبني لتجربة قراءة بصرية آسرة، مع نظام إعلانات وخطوط عربية متقدم، ودعم كامل للعربية (RTL) والوضع الليلي/النهاري. A blazing-fast, SEO-first news theme engineered for Google News, Google Discover and Google Suggest.
-Version: 1.5.0
+Version: 1.6.0
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
@@ -337,7 +337,30 @@ ul[role="list"], ol[role="list"] { list-style: none; padding: 0; }
 .mn-article__cats a { background: color-mix(in srgb, var(--mn-brand) 12%, transparent); color: var(--mn-brand); font-size: .78rem; font-weight: 800; padding: .3em .9em; border-radius: var(--mn-radius-pill); }
 .mn-article__cats a:hover { background: var(--mn-brand); color: #fff; }
 .mn-article__title { font-size: var(--mn-fs-h1); margin-block-end: .6rem; letter-spacing: -.01em; }
-.mn-article__excerpt { font-size: var(--mn-fs-lead); color: var(--mn-text-soft); line-height: 1.8; margin-block-end: 1.2rem; font-weight: 500; }
+.mn-article__excerpt, .mn-article__subtitle { font-size: var(--mn-fs-lead); color: var(--mn-text-soft); line-height: 1.8; margin-block-end: 1.2rem; font-weight: 500; }
+.mn-article__subtitle { color: var(--mn-text-soft); font-weight: 600; }
+
+/* Reader font-size control */
+.mn-fontsize { display: inline-flex; gap: 2px; margin-inline-start: auto; background: var(--mn-surface-2); border: 1px solid var(--mn-border); border-radius: var(--mn-radius-pill); padding: 2px; }
+.mn-fontsize button { width: 30px; height: 30px; border-radius: 50%; font-family: var(--mn-font-head); font-weight: 800; color: var(--mn-text-soft); line-height: 1; }
+.mn-fontsize button:hover { background: var(--mn-surface); color: var(--mn-brand); }
+.mn-fontsize button[data-mn-font="dec"] { font-size: .8rem; }
+.mn-fontsize button[data-mn-font="inc"] { font-size: 1.05rem; }
+
+/* Sources / citations */
+.mn-sources { background: var(--mn-surface-2); border: 1px solid var(--mn-border); border-radius: var(--mn-radius-sm); padding: 1rem 1.3rem; margin-block: 1.6rem; }
+.mn-sources__title { font-size: 1.05rem; margin-block-end: .5rem; display: flex; align-items: center; gap: .5rem; }
+.mn-sources__title::before { content: ""; width: 5px; height: 1.1em; background: var(--mn-brand); border-radius: var(--mn-radius-pill); }
+.mn-sources__list { margin: 0; padding-inline-start: 1.4em; color: var(--mn-text-soft); font-size: .95rem; }
+.mn-sources__list li { margin: .3em 0; }
+
+/* Article layouts (per-post or global) */
+.mn-alayout-narrow, .mn-alayout-wide { grid-template-columns: minmax(0,1fr); }
+.mn-alayout-narrow .mn-primary { max-width: 760px; margin-inline: auto; }
+.mn-alayout-wide .mn-article__inner { padding-inline: clamp(1rem, .5rem + 3vw, 3.5rem); }
+
+/* Facebook comments spacing */
+.mn-fb-comments { margin-block: var(--mn-gap-lg); }
 .mn-article__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; padding-block: 1rem; border-block: 1px solid var(--mn-border); color: var(--mn-text-mute); font-size: var(--mn-fs-meta); font-weight: 600; margin-block-end: 1.4rem; }
 .mn-article__meta .mn-author { display: flex; align-items: center; gap: .5rem; color: var(--mn-text); }
 .mn-article__meta .mn-author img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; }

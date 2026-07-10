@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MANCHIT_VERSION', '1.5.0' );
+define( 'MANCHIT_VERSION', '1.6.0' );
 define( 'MANCHIT_DIR', trailingslashit( get_template_directory() ) );
 define( 'MANCHIT_URI', trailingslashit( get_template_directory_uri() ) );
 
@@ -50,4 +50,5 @@ manchit_require( 'widgets' );            // widget areas + custom widgets
 manchit_require( 'post-views' );         // lightweight post views counter
 manchit_require( 'toc' );                // automatic table of contents
 manchit_require( 'faq' );                // FAQ block + FAQPage schema
+manchit_require( 'article' );            // subtitle, layout, sources, FB comments
 manchit_require( 'nav-walker' );         // accessible menu walker

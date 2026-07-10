@@ -437,6 +437,30 @@
 		});
 	});
 
+	/* ---------------------------------------------------------------
+	 * Reader font-size control (persisted)
+	 * ------------------------------------------------------------- */
+	(function initFontSize() {
+		var entry = $('.mn-entry');
+		var ctrl = $('.mn-fontsize');
+		if (!entry || !ctrl) { return; }
+		var STEP = 1, MIN = -2, MAX = 6, level = 0;
+		try { level = parseInt(localStorage.getItem('mn-fontsize') || '0', 10) || 0; } catch (e) {}
+		function apply() {
+			level = Math.max(MIN, Math.min(MAX, level));
+			entry.style.fontSize = 'calc(1.08rem + ' + (level * 0.06) + 'rem)';
+			try { localStorage.setItem('mn-fontsize', String(level)); } catch (e) {}
+		}
+		$all('[data-mn-font]', ctrl).forEach(function (btn) {
+			on(btn, 'click', function () {
+				var a = btn.getAttribute('data-mn-font');
+				if (a === 'inc') { level += STEP; } else if (a === 'dec') { level -= STEP; } else { level = 0; }
+				apply();
+			});
+		});
+		if (level !== 0) { apply(); }
+	})();
+
 	/* Mark JS as ready for progressive styling. */
 	root.classList.add('mn-js');
 })();

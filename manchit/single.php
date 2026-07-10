@@ -17,8 +17,9 @@ while ( have_posts() ) :
 	}
 	?>
 
+	<?php $mn_layout = function_exists( 'manchit_article_layout' ) ? manchit_article_layout() : 'standard'; ?>
 	<div class="mn-container">
-		<div class="mn-content-area">
+		<div class="mn-content-area mn-alayout-<?php echo esc_attr( $mn_layout ); ?>">
 			<div class="mn-primary">
 				<article id="post-<?php the_ID(); ?>" <?php post_class( 'mn-article' ); ?> data-post-id="<?php the_ID(); ?>" data-mn-url="<?php the_permalink(); ?>">
 					<div class="mn-article__inner">
@@ -37,12 +38,24 @@ while ( have_posts() ) :
 
 						<h1 class="mn-article__title"><?php the_title(); ?></h1>
 
-						<?php if ( has_excerpt() ) : ?>
+						<?php
+						$mn_subtitle = function_exists( 'manchit_get_subtitle' ) ? manchit_get_subtitle() : '';
+						if ( $mn_subtitle ) :
+							?>
+							<p class="mn-article__subtitle"><?php echo esc_html( $mn_subtitle ); ?></p>
+						<?php elseif ( has_excerpt() ) : ?>
 							<p class="mn-article__excerpt"><?php echo esc_html( get_the_excerpt() ); ?></p>
 						<?php endif; ?>
 
 						<div class="mn-article__meta">
 							<?php manchit_post_meta(); ?>
+							<?php if ( manchit_get_option( 'show_font_resize', 1 ) ) : ?>
+								<div class="mn-fontsize" role="group" aria-label="<?php esc_attr_e( 'حجم الخط', 'manchit' ); ?>">
+									<button type="button" data-mn-font="dec" aria-label="<?php esc_attr_e( 'تصغير الخط', 'manchit' ); ?>">أ−</button>
+									<button type="button" data-mn-font="reset" aria-label="<?php esc_attr_e( 'الحجم الافتراضي', 'manchit' ); ?>">أ</button>
+									<button type="button" data-mn-font="inc" aria-label="<?php esc_attr_e( 'تكبير الخط', 'manchit' ); ?>">أ+</button>
+								</div>
+							<?php endif; ?>
 						</div>
 
 						<?php manchit_render_ads( 'after_title' ); ?>
@@ -158,10 +171,18 @@ while ( have_posts() ) :
 					get_template_part( 'template-parts/related' );
 				}
 
-				// Comments.
-				if ( comments_open() || get_comments_number() ) {
+				// Comments — respect the chosen system (WP / Facebook / both).
+				$mn_csys = function_exists( 'manchit_comments_system' ) ? manchit_comments_system() : 'wp';
+				if ( ( comments_open() || get_comments_number() ) || 'wp' !== $mn_csys ) {
 					manchit_render_ads( 'before_comments' );
-					comments_template();
+					if ( 'wp' === $mn_csys || 'both' === $mn_csys ) {
+						if ( comments_open() || get_comments_number() ) {
+							comments_template();
+						}
+					}
+					if ( ( 'facebook' === $mn_csys || 'both' === $mn_csys ) && function_exists( 'manchit_facebook_comments' ) ) {
+						manchit_facebook_comments();
+					}
 				}
 
 				// Autoload the next (older) article on scroll — infinite news reading.
@@ -178,7 +199,7 @@ while ( have_posts() ) :
 				?>
 			</div><!-- .mn-primary -->
 
-			<?php get_sidebar(); ?>
+			<?php if ( 'standard' === $mn_layout ) { get_sidebar(); } ?>
 		</div>
 	</div>
 

@@ -472,6 +472,7 @@ function manchit_option_keys_for_tab( $tab ) {
 			'show_prev_next'        => 'checkbox',
 			'share_top'             => 'checkbox',
 			'autoload_next'         => 'checkbox',
+			'show_font_resize'      => 'checkbox',
 		),
 		'seo'     => array(
 			'enable_schema'           => 'checkbox',
@@ -676,6 +677,18 @@ function manchit_tab_article( $o ) {
 	manchit_field_row( __( 'التنقل بين المقالات', 'manchit' ), manchit_toggle( 'show_prev_next', $o['show_prev_next'], __( 'روابط المقال السابق/التالي', 'manchit' ) ) );
 	manchit_field_row( __( 'أزرار المشاركة أعلى المقال', 'manchit' ), manchit_toggle( 'share_top', $o['share_top'], __( 'شريط مشاركة فوق المحتوى أيضاً', 'manchit' ) ) );
 	manchit_field_row( __( 'التمرير التلقائي للمقال التالي', 'manchit' ), manchit_toggle( 'autoload_next', $o['autoload_next'], __( 'تحميل المقال التالي تلقائياً عند نهاية القراءة (قراءة لا نهائية)', 'manchit' ) ), __( 'يزيد مشاهدات الصفحات ومدة البقاء.', 'manchit' ) );
+	manchit_field_row( __( 'تغيير حجم خط القراءة', 'manchit' ), manchit_toggle( 'show_font_resize', $o['show_font_resize'], __( 'أزرار أ− / أ / أ+ للقارئ (يُحفظ محلياً)', 'manchit' ) ) );
+	manchit_field_row( __( 'تخطيط المقال الافتراضي', 'manchit' ), manchit_select( 'article_layout', $o['article_layout'], array(
+		'standard' => __( 'قياسي (مع الشريط الجانبي)', 'manchit' ),
+		'narrow'   => __( 'عمود مركزي مريح (بلا شريط)', 'manchit' ),
+		'wide'     => __( 'عريض (بلا شريط)', 'manchit' ),
+	) ), __( 'يمكن تجاوزه لكل مقال من محرّر المقال.', 'manchit' ) );
+	manchit_field_row( __( 'نظام التعليقات', 'manchit' ), manchit_select( 'comments_system', $o['comments_system'], array(
+		'wp'       => __( 'تعليقات ووردبريس', 'manchit' ),
+		'facebook' => __( 'تعليقات فيسبوك فقط', 'manchit' ),
+		'both'     => __( 'الاثنان معاً', 'manchit' ),
+	) ) );
+	manchit_field_row( __( 'معرّف تطبيق فيسبوك (App ID)', 'manchit' ), manchit_input( 'fb_app_id', $o['fb_app_id'], 'text', 'dir="ltr"' ), __( 'مطلوب لتعليقات فيسبوك (اختياري لكن موصى به).', 'manchit' ) );
 	manchit_field_row( __( 'طول المقتطف (كلمات)', 'manchit' ), manchit_input( 'excerpt_length', $o['excerpt_length'], 'number', 'min="8" max="60"' ) );
 }
 
