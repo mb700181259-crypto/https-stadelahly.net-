@@ -30,61 +30,10 @@
 
 <div id="mn-page" class="mn-site">
 
-	<?php if ( manchit_get_option( 'show_topbar', 1 ) ) : ?>
-		<div class="mn-topbar">
-			<div class="mn-container">
-				<span class="mn-topbar__date">
-					<?php echo manchit_icon( 'clock' ); // phpcs:ignore ?>
-					<?php echo esc_html( wp_date( 'l، j F Y' ) ); ?>
-				</span>
-				<?php
-				if ( has_nav_menu( 'topbar' ) ) {
-					wp_nav_menu(
-						array(
-							'theme_location' => 'topbar',
-							'container'      => 'nav',
-							'menu_class'     => 'mn-topbar__menu',
-							'depth'          => 1,
-							'fallback_cb'    => false,
-						)
-					);
-				}
-				?>
-			</div>
-		</div>
-	<?php endif; ?>
-
-	<header id="mn-header" class="<?php echo manchit_get_option( 'sticky_header', 1 ) ? 'is-sticky' : ''; ?>"
-		data-hide-on-scroll="<?php echo (int) manchit_get_option( 'hide_header_on_scroll', 1 ); ?>">
-		<div class="mn-container mn-header__bar">
-			<?php manchit_branding(); ?>
-
-			<nav class="mn-primary-nav" aria-label="<?php esc_attr_e( 'القائمة الرئيسية', 'manchit' ); ?>">
-				<?php
-				wp_nav_menu(
-					array(
-						'theme_location' => 'primary',
-						'container'      => false,
-						'menu_class'     => 'mn-menu',
-						'depth'          => 3,
-						'walker'         => new Manchit_Nav_Walker(),
-						'fallback_cb'    => 'manchit_default_menu',
-					)
-				);
-				?>
-			</nav>
-
-			<div class="mn-header__actions">
-				<button class="mn-icon-btn" type="button" aria-label="<?php esc_attr_e( 'بحث', 'manchit' ); ?>" data-mn-open-search>
-					<?php echo manchit_icon( 'search' ); // phpcs:ignore ?>
-				</button>
-				<?php manchit_theme_toggle(); ?>
-				<button class="mn-icon-btn mn-menu-toggle" type="button" aria-label="<?php esc_attr_e( 'القائمة', 'manchit' ); ?>" aria-expanded="false" data-mn-open-menu>
-					<?php echo manchit_icon( 'menu' ); // phpcs:ignore ?>
-				</button>
-			</div>
-		</div>
-	</header>
+	<?php
+	// Header is rendered by the zone builder (configurable rows/zones/devices).
+	manchit_render_header();
+	?>
 
 	<?php
 	/**

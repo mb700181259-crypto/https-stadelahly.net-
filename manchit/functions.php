@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MANCHIT_VERSION', '1.3.0' );
+define( 'MANCHIT_VERSION', '1.4.0' );
 define( 'MANCHIT_DIR', trailingslashit( get_template_directory() ) );
 define( 'MANCHIT_URI', trailingslashit( get_template_directory_uri() ) );
 
@@ -36,6 +36,7 @@ manchit_require( 'enqueue' );            // styles & scripts
 manchit_require( 'fonts' );              // Arabic font system
 manchit_require( 'template-functions' ); // body classes, filters
 manchit_require( 'template-tags' );      // helpers used inside templates
+manchit_require( 'header-footer' );      // header/footer zone builder
 manchit_require( 'breadcrumbs' );        // accessible breadcrumbs + schema
 manchit_require( 'seo' );                // JSON-LD schema, OG, News/Discover meta
 manchit_require( 'ads' );                // ad placement engine

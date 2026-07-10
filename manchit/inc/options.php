@@ -36,6 +36,8 @@ function manchit_default_options() {
 		'sticky_header'        => 1,
 		'hide_header_on_scroll'=> 1,
 		'show_topbar'          => 1,
+		'dark_logo'            => '',
+		'header_custom_html'   => '',
 		'show_breadcrumbs'     => 1,
 		'show_news_ticker'     => 1,
 		'ticker_source'        => 'recent', // recent | category

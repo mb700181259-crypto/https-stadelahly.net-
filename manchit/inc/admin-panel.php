@@ -37,6 +37,8 @@ function manchit_settings_tabs() {
 	return array(
 		'general' => __( 'عام والهوية', 'manchit' ),
 		'fonts'   => __( 'الخطوط', 'manchit' ),
+		'header'  => __( 'الهيدر', 'manchit' ),
+		'footer'  => __( 'الفوتر', 'manchit' ),
 		'layout'  => __( 'التخطيط', 'manchit' ),
 		'article' => __( 'المقالات', 'manchit' ),
 		'seo'     => __( 'السيو وجوجل نيوز', 'manchit' ),
@@ -60,6 +62,8 @@ function manchit_handle_settings_save() {
 
 	if ( 'ads' === $tab ) {
 		manchit_save_ads();
+	} elseif ( in_array( $tab, array( 'header', 'footer' ), true ) ) {
+		manchit_save_layout( $tab );
 	} else {
 		manchit_save_options();
 	}
@@ -200,6 +204,130 @@ function manchit_save_ads() {
 		$opts['rs_ratio'] = max( 0, min( 100, (int) $_POST['manchit_options']['rs_ratio'] ) );
 	}
 	update_option( 'manchit_options', $opts );
+}
+
+/**
+ * Persist header/footer zone layout from the builder.
+ *
+ * @param string $area 'header'|'footer'.
+ */
+function manchit_save_layout( $area ) {
+	$key      = 'header' === $area ? 'header_rows' : 'footer_rows';
+	$elements = array_keys( manchit_layout_elements() );
+	$rows     = array();
+
+	if ( ! empty( $_POST['manchit_layout']['rows'] ) && is_array( $_POST['manchit_layout']['rows'] ) ) {
+		foreach ( wp_unslash( $_POST['manchit_layout']['rows'] ) as $r ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			$zones = array();
+			foreach ( array( 'start', 'center', 'end' ) as $z ) {
+				$sel          = array_map( 'sanitize_key', (array) ( $r['zones'][ $z ] ?? array() ) );
+				$zones[ $z ]  = array_values( array_intersect( $sel, $elements ) );
+			}
+			$rows[] = array(
+				'id'      => sanitize_html_class( $r['id'] ?? 'row' ),
+				'enabled' => ! empty( $r['enabled'] ) ? 1 : 0,
+				'device'  => in_array( $r['device'] ?? 'all', array( 'all', 'desktop', 'mobile' ), true ) ? $r['device'] : 'all',
+				'sticky'  => ! empty( $r['sticky'] ) ? 1 : 0,
+				'zones'   => $zones,
+			);
+		}
+	}
+
+	$opts         = manchit_get_options();
+	$opts[ $key ] = $rows;
+	if ( 'header' === $area ) {
+		if ( isset( $_POST['manchit_options']['dark_logo'] ) ) {
+			$opts['dark_logo'] = esc_url_raw( wp_unslash( $_POST['manchit_options']['dark_logo'] ) );
+		}
+		if ( isset( $_POST['manchit_options']['header_custom_html'] ) ) {
+			$opts['header_custom_html'] = wp_kses_post( wp_unslash( $_POST['manchit_options']['header_custom_html'] ) );
+		}
+	}
+	update_option( 'manchit_options', $opts );
+}
+
+/**
+ * Render the zone-layout editor for a header/footer area.
+ *
+ * @param string $area 'header'|'footer'.
+ */
+function manchit_render_layout_editor( $area ) {
+	$rows     = manchit_layout_rows( $area );
+	$elements = manchit_layout_elements();
+	echo '<div class="manchit-layout-editor">';
+	foreach ( $rows as $i => $row ) {
+		$rid  = $row['id'] ?? 'row';
+		$name = "manchit_layout[rows][$i]";
+		echo '<div class="manchit-lrow">';
+		printf( '<input type="hidden" name="%s[id]" value="%s">', esc_attr( $name ), esc_attr( $rid ) );
+		echo '<div class="manchit-lrow__head">';
+		printf( '<strong>%s</strong>', esc_html( manchit_layout_row_label( $rid ) ) );
+		printf( '<label class="manchit-switch"><input type="checkbox" name="%s[enabled]" value="1" %s><span class="manchit-slider"></span> %s</label>', esc_attr( $name ), checked( 1, (int) ( $row['enabled'] ?? 1 ), false ), esc_html__( 'مفعّل', 'manchit' ) );
+		echo '<label>' . esc_html__( 'الجهاز', 'manchit' ) . ' <select name="' . esc_attr( $name ) . '[device]">';
+		foreach ( array( 'all' => __( 'الكل', 'manchit' ), 'desktop' => __( 'كمبيوتر', 'manchit' ), 'mobile' => __( 'جوال', 'manchit' ) ) as $dv => $dl ) {
+			printf( '<option value="%s" %s>%s</option>', esc_attr( $dv ), selected( $row['device'] ?? 'all', $dv, false ), esc_html( $dl ) );
+		}
+		echo '</select></label>';
+		printf( '<label class="manchit-switch"><input type="checkbox" name="%s[sticky]" value="1" %s><span class="manchit-slider"></span> %s</label>', esc_attr( $name ), checked( 1, (int) ( $row['sticky'] ?? 0 ), false ), esc_html__( 'ثابت عند التمرير', 'manchit' ) );
+		echo '</div>';
+
+		echo '<div class="manchit-lrow__zones">';
+		foreach ( array( 'start' => __( 'البداية', 'manchit' ), 'center' => __( 'الوسط', 'manchit' ), 'end' => __( 'النهاية', 'manchit' ) ) as $z => $zlabel ) {
+			$selected = (array) ( $row['zones'][ $z ] ?? array() );
+			echo '<div class="manchit-zone-col"><span class="manchit-zone-title">' . esc_html( $zlabel ) . '</span><div class="manchit-checklist">';
+			foreach ( $elements as $ekey => $edata ) {
+				printf(
+					'<label><input type="checkbox" name="%s[zones][%s][]" value="%s" %s> %s</label>',
+					esc_attr( $name ),
+					esc_attr( $z ),
+					esc_attr( $ekey ),
+					checked( in_array( $ekey, $selected, true ), true, false ),
+					esc_html( $edata['label'] )
+				);
+			}
+			echo '</div></div>';
+		}
+		echo '</div></div>';
+	}
+	echo '</div>';
+	echo '<p class="manchit-hint">' . esc_html__( 'العناصر تظهر بترتيب القائمة داخل كل منطقة. الصف بلا عناصر لا يظهر.', 'manchit' ) . '</p>';
+}
+
+/**
+ * Friendly label for a row id.
+ *
+ * @param string $rid Row id.
+ * @return string
+ */
+function manchit_layout_row_label( $rid ) {
+	$labels = array(
+		'topbar' => __( 'الشريط العلوي', 'manchit' ),
+		'main'   => __( 'الصف الرئيسي', 'manchit' ),
+		'nav'    => __( 'صف القائمة', 'manchit' ),
+	);
+	return $labels[ $rid ] ?? ucfirst( $rid );
+}
+
+/**
+ * Header tab.
+ *
+ * @param array $o Options.
+ */
+function manchit_tab_header( $o ) {
+	manchit_field_row( __( 'شعار الوضع الليلي', 'manchit' ), manchit_input( 'dark_logo', $o['dark_logo'], 'text', 'data-manchit-media="1"' ), __( 'شعار بديل يظهر في الوضع الليلي (اختياري).', 'manchit' ) );
+	manchit_field_row( __( 'HTML مخصّص للهيدر', 'manchit' ), sprintf( '<textarea name="manchit_options[header_custom_html]" rows="3" class="large-text code" dir="ltr">%s</textarea>', esc_textarea( $o['header_custom_html'] ) ), __( 'يظهر عند إضافة عنصر «HTML مخصّص» لأي منطقة.', 'manchit' ) );
+	echo '<h2>' . esc_html__( 'بناء الهيدر (مناطق)', 'manchit' ) . '</h2>';
+	manchit_render_layout_editor( 'header' );
+}
+
+/**
+ * Footer tab.
+ *
+ * @param array $o Options.
+ */
+function manchit_tab_footer( $o ) {
+	echo '<h2>' . esc_html__( 'بناء الفوتر (مناطق)', 'manchit' ) . '</h2>';
+	manchit_render_layout_editor( 'footer' );
 }
 
 /**

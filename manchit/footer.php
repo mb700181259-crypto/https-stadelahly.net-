@@ -31,61 +31,10 @@
 			</div>
 		<?php endif; ?>
 
-		<div class="mn-container">
-			<div class="mn-footer__bottom">
-				<div class="mn-footer__copy">
-					<?php
-					$copy = manchit_get_option( 'copyright_text', '' );
-					if ( $copy ) {
-						echo wp_kses_post( $copy );
-					} else {
-						printf(
-							/* translators: 1: year, 2: site name */
-							esc_html__( '© %1$s %2$s — جميع الحقوق محفوظة.', 'manchit' ),
-							esc_html( wp_date( 'Y' ) ),
-							esc_html( get_bloginfo( 'name' ) )
-						);
-					}
-					?>
-				</div>
-
-				<?php
-				$social = array_filter( (array) manchit_get_option( 'social', array() ) );
-				if ( $social ) :
-					?>
-					<div class="mn-footer__social">
-						<?php
-						foreach ( $social as $network => $url ) :
-							if ( ! $url ) {
-								continue;
-							}
-							printf(
-								'<a href="%s" target="_blank" rel="noopener" aria-label="%s">%s</a>',
-								esc_url( $url ),
-								esc_attr( $network ),
-								manchit_icon( $network ) // phpcs:ignore
-							);
-						endforeach;
-						?>
-					</div>
-				<?php endif; ?>
-
-				<?php
-				if ( has_nav_menu( 'footer' ) ) {
-					wp_nav_menu(
-						array(
-							'theme_location' => 'footer',
-							'container'      => 'nav',
-							'container_class'=> 'mn-footer__nav',
-							'menu_class'     => 'mn-footer__menu',
-							'depth'          => 1,
-							'fallback_cb'    => false,
-						)
-					);
-				}
-				?>
-			</div>
-		</div>
+		<?php
+		// Footer bar is rendered by the zone builder (configurable rows/zones).
+		manchit_render_footer_bar();
+		?>
 	</footer>
 </div><!-- #mn-page -->
 

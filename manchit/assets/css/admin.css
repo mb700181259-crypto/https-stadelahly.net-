@@ -50,6 +50,14 @@
 .manchit-ad-schedule label { font-weight: 600; }
 .manchit-ad-schedule input { margin-inline-start: 4px; }
 
+/* Header/Footer zone editor */
+.manchit-lrow { border: 1px solid #dcdcde; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; background: #fbfbfc; }
+.manchit-lrow__head { display: flex; flex-wrap: wrap; align-items: center; gap: 1.2rem; margin-bottom: .8rem; padding-bottom: .8rem; border-bottom: 1px solid #eee; }
+.manchit-lrow__head strong { font-size: 14px; }
+.manchit-lrow__zones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+@media (max-width: 782px) { .manchit-lrow__zones { grid-template-columns: 1fr; } }
+.manchit-zone-title { display: block; font-weight: 700; font-size: 12px; text-transform: uppercase; color: #787c82; margin-bottom: .3rem; }
+
 @media (max-width: 782px) {
 	.manchit-row { grid-template-columns: 1fr; }
 	.manchit-ad-unit__grid { grid-template-columns: 1fr; }
