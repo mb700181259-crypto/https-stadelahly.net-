@@ -1,0 +1,16 @@
+<?php a4h_hook('singular_post_before'); ?>
+<?php a4h_hook('singular_featured_image_before'); ?>
+<?php a4h_singular_featured_image(); ?>
+<?php a4h_hook('singular_featured_image_after'); ?>
+<?php a4h_singular_share('top'); ?>
+<?php a4h_hook('singular_body_before'); ?>
+<?php a4h_singular_meta(); ?>
+<?php a4h_singular_pagination('top'); ?>
+<?php a4h_singular_body(); ?>
+<?php a4h_singular_pagination('bottom'); ?>
+<?php a4h_hook('singular_body_after'); ?>
+<?php a4h_singular_share('bottom'); ?>
+<?php a4h_singular_tags(); ?>
+<?php a4h_singular_author_block(); ?>
+<?php a4h_singular_navigation(); ?>
+<?php a4h_hook('singular_post_after'); ?>

@@ -1,0 +1,61 @@
+
+.settings-checkbox input[type="checkbox"]{
+-webkit-appearance: none;
+-moz-appearance: none;
+appearance: none;
+width: 3.5em;
+height: 2em;
+background: #a9a9a9;
+border-radius: 3em;
+position: relative;
+cursor: pointer;
+outline: none;
+-webkit-transition: all .2s ease-in-out;
+transition: all .2s ease-in-out;
+border: none !important;
+box-shadow: none !important;
+margin: 0px !important;
+}
+
+
+.settings-checkbox input[type="checkbox"]:checked{
+    background: #9d4bc1;
+}
+
+.settings-checkbox.reverse input[type="checkbox"]{
+    background: #9d4bc1;
+}
+
+.settings-checkbox.reverse input[type="checkbox"]:checked{
+    background: #a9a9a9;
+}
+
+.settings-checkbox input[type="checkbox"]:before{
+    display: none !important;
+}
+
+
+
+.settings-checkbox input[type="checkbox"]:after{
+position: absolute;
+content: "";
+width: 2em;
+height: 2em;
+border-radius: 50%;
+background: #fff;
+-webkit-box-shadow: 0 0 .25em rgba(0,0,0,.3);
+box-shadow: 0 0 .25em rgba(0,0,0,.3);
+-webkit-transform: scale(.7);
+transform: scale(.7);
+-webkit-transition: all .2s ease-in-out;
+transition: all .2s ease-in-out;
+}
+
+.settings-checkbox input[type="checkbox"]:after{
+    left: 0px;
+}
+
+.settings-checkbox input[type="checkbox"]:checked:after{
+    left: calc(100% - 2em);
+}
+ 

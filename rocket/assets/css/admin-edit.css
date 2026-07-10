@@ -1,0 +1,12 @@
+.table-repeatable { width: 100%; border-collapse: collapse; }
+.table-repeatable th, .table-repeatable td { padding: 0.5em; border: 1px solid #CCCCCC; }
+.table-repeatable th { text-align: initial; }
+.table-repeatable tr { background-color: #FFFFFF; }
+.table-repeatable .ui-sortable .ui-sortable-helper { outline: 3px solid #eebb75; }
+.table-repeatable tr.sample { display: none; }
+.table-repeatable thead.empty { display: none; }
+.table-repeatable td.action:first-child { cursor: move; }
+.table-repeatable th.action, .table-repeatable td.action { width: 0px; min-width: 30px; background-color: #EEEEEE; text-align: center; }
+.table-repeatable .asterisk { color: #FF0000; }
+.table-repeatable td.action .actions { display: flex; gap: 0.5em; }
+.table-repeatable td.action .actions .dashicons { vertical-align: middle; }

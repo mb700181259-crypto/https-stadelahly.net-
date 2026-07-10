@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;700&display=swap');
+html { background: #F7F7F7; overflow-y: scroll; font-family: 'Readex Pro'; }
+html .mce-content-body { max-width: 90%; width: 90%; min-height: 300px; padding: 20px !important; margin: 20px auto; box-shadow: 0px 0px 4px #CCCCCC; font: normal 16px/1.5 'Readex Pro'; }
+html .mce-content-body:after { display: block; clear: both; content: ""; }
+html .mce-content-body a { color: #0073aa; text-decoration: underline; }
+html .mce-content-body img { max-width: 100%; height: auto; }
+html .mce-content-body p { margin: 0px 0px 20px 0px; }
+html .mce-content-body blockquote { clear: both; margin: 20px; padding: 20px; border: 1px dashed #DDDDDD; background: #F8F8F8; font: inherit; }
+html .mce-content-body blockquote p:last-of-type { margin: 0px; }
+html .mce-content-body hr { margin-bottom: 20px; height: 1px; border: none; background-color: rgba(0,0,0,0.1); }
+html .mce-content-body .aligncenter { display: block; margin-right: auto; margin-left: auto; }
+html .mce-content-body .alignleft { float: left; margin-right: 20px; }
+html .mce-content-body .alignright { float: right; margin-left: 20px; }
+html .mce-content-body .wp-caption { position: relative; max-width: 100%; }
+html .mce-content-body .wp-caption-dd { position: absolute; right: 0px; bottom: 0px; padding: 2px 15px; background: rgba(0,0,0,0.7); color: #FFFFFF; z-index: 20; text-align: right; }
+html .mce-content-body .wp-caption-dd, html .mce-content-body .wp-caption-text { font: normal 13px/20px tahoma; }
+html .mce-content-body table { width: 100%; margin: 0px 0px 20px 0px; border: none; border-right: 1px solid #DDDDDD; border-top: 1px solid #DDDDDD; border-spacing: 0px; text-align: initial; }
+html .mce-content-body td, html .mce-content-body th { padding: 10px; margin: 0px; font: inherit; color: #333333; border: none; border-bottom: 1px solid #DDDDDD; border-left: 1px solid #DDDDDD; }
+html .mce-content-body iframe, html .mce-content-body video { max-width: 100%; min-height: 300px; height: auto; }
+html .mce-content-body .content-break { width: 100%; height: 20px; margin: 15px auto; background: transparent url('../img/contentbreak.png') repeat-y scroll center center; outline: none !important; }
+html .mce-content-body img[data-wp-more="nextpage"] { background: transparent url('../img/pagebreak.png') repeat-y scroll center center; }
+html .mce-content-body .citation-id { display: inline-block; margin: 0px 0.5em; padding: 0px 5px; border-radius: 0.3em; background: #EEEEEE; }

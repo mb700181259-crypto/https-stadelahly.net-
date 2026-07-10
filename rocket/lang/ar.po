@@ -1,0 +1,458 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2024-10-30 20:04+0300\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);\n"
+"X-Generator: Poedit 3.5\n"
+"X-Poedit-Basepath: .\n"
+
+msgid "Social Links"
+msgstr "مواقع التواصل"
+
+msgid "Website"
+msgstr "الموقع الالكتروني"
+
+msgid "Email"
+msgstr "البريد الالكتروني"
+
+msgid "Facebook"
+msgstr "فيسبوك"
+
+msgid "Messenger"
+msgstr "مسنجر"
+
+msgid "Twitter"
+msgstr "تويتر"
+
+msgid "x.com"
+msgstr "منصة إكس"
+
+msgid "Instagram"
+msgstr "إنستغرام"
+
+msgid "Threads"
+msgstr "ثريدس"
+
+msgid "YouTube"
+msgstr "يوتيوب"
+
+msgid "TikTok"
+msgstr "تيك توك"
+
+msgid "Snapchat"
+msgstr "سناب شات"
+
+msgid "Twitch"
+msgstr "تويتش"
+
+msgid "Vimeo"
+msgstr "فيميو"
+
+msgid "Pinterest"
+msgstr "بنترست"
+
+msgid "Patreon"
+msgstr "باتريون"
+
+msgid "Reddit"
+msgstr "رديت"
+
+msgid "Discord"
+msgstr "ديسكورد"
+
+msgid "Telegram"
+msgstr "تلغرام"
+
+msgid "WhatsApp"
+msgstr "واتساب"
+
+msgid "LinkedIn"
+msgstr "لينكد إن"
+
+msgid "GitHub"
+msgstr "غيت هاب"
+
+msgid "VK"
+msgstr "VK.com"
+
+msgid "Behance"
+msgstr "بيهانس"
+
+msgid "Google News"
+msgstr "أخبار جوجل"
+
+msgid "Android App"
+msgstr "تطبيق اندرويد"
+
+msgid "iOS App"
+msgstr "تطبيق iOS"
+
+msgid "RSS Feed"
+msgstr "رابط RSS"
+
+msgid "Search"
+msgstr "البحث"
+
+msgid "Menu"
+msgstr "القائمة"
+
+msgid "Close"
+msgstr "إغلاق"
+
+msgid "Switch Mode"
+msgstr "تغيير الثيم"
+
+msgid "Powered by Arb4Host Network"
+msgstr "برمجة وتصميم عرب فور هوست"
+
+msgid "Widgets Area"
+msgstr "منطقة ودجات"
+
+msgid "Search Results"
+msgstr "البحث"
+
+msgid "Search Results for: %s"
+msgstr "نتائج البحث عن: %s"
+
+msgid "Archives"
+msgstr "الأرشيف"
+
+msgid "Monthly Archives: %s"
+msgstr "الأرشيف الشهري: %s"
+
+msgid "Daily Archives: %s"
+msgstr "الأرشيف اليومي: %s"
+
+msgid "Yearly Archives: %s"
+msgstr "الأرشيف السنوي: %s"
+
+msgid "Author Page: %s"
+msgstr "صفحة الكاتب: %s"
+
+msgid "Nothing Found"
+msgstr "لا يوجد شيء"
+
+msgid "Oops! That page can&rsquo;t be found"
+msgstr "عفوا، هذه الصفحة غير موجودة"
+
+msgid ""
+"It seems we can&rsquo;t find what you&rsquo;re looking for. Perhaps "
+"searching can help."
+msgstr "لم يتم العثور على الصفحة المطلوبة، جرب البحث عما تريد."
+
+msgid ""
+"Sorry, but nothing matched your search terms. Please try again with some "
+"different keywords."
+msgstr "لا توجد نتائج، جرب البحث بعبارات أخرى."
+
+msgid "Filter"
+msgstr "تصفية"
+
+msgid "Show More"
+msgstr "عرض المزيد"
+
+msgid "By"
+msgstr "بواسطة"
+
+msgid "Show all posts by author"
+msgstr "عرض جميع مقالات الكاتب"
+
+msgid "The author"
+msgstr "الكاتب"
+
+msgctxt "Post date"
+msgid "Posted"
+msgstr "تاريخ النشر"
+
+msgid "Posted"
+msgstr "تاريخ النشر"
+
+msgid "Updated"
+msgstr "آخر تحديث"
+
+msgid "In"
+msgstr "في"
+
+msgid "Share"
+msgstr "شارك"
+
+msgid "More"
+msgstr "المزيد"
+
+msgid "Questions & Answers"
+msgstr "الأسئلة الشائعة"
+
+msgid "Citations"
+msgstr "المراجع"
+
+msgid "Jump to citation"
+msgstr "الانتقال للمرجع"
+
+msgid "Continue reading"
+msgstr "أكمل القراءة"
+
+msgid "Seconds"
+msgstr "ثانية"
+
+msgid "Minutes"
+msgstr "دقيقة"
+
+msgid "Hours"
+msgstr "ساعة"
+
+msgid "Days"
+msgstr "يوم"
+
+msgid "All"
+msgstr "الكل"
+
+msgid "Subcategories"
+msgstr "تصنيفات فرعية"
+
+msgid "All categories"
+msgstr "كل التصنيفات"
+
+msgid "Posts archive: Latest"
+msgstr "أرشيف مقالات: الأحدث"
+
+msgid "Posts archive: Popular"
+msgstr "أرشيف مقالات: الأكثر مشاهدة"
+
+msgid "No content"
+msgstr "بدون محتوى"
+
+msgid "Go to Top"
+msgstr "الانتقال للأعلى"
+
+msgid "Log in/Register"
+msgstr "دخول/تسجيل"
+
+#~ msgid "Updated on"
+#~ msgstr "آخر تحديث"
+
+#~ msgid "Search Results for &#8220;%s&#8221;"
+#~ msgstr "نتائج البحث عن &#8220;%s&#8221;"
+
+#~ msgid "in"
+#~ msgstr "فيس"
+
+#~ msgid "ago"
+#~ msgstr "منذ"
+
+#~ msgid "Show"
+#~ msgstr "عرض"
+
+#~ msgid "%s ago"
+#~ msgstr "منذ %s"
+
+#~ msgid "Select The Menu"
+#~ msgstr "اختار قائمة التصفح"
+
+#~ msgid "Header Sidebar"
+#~ msgstr "قائمة ودجات الهيدر"
+
+#~ msgid "Footer Sidebar"
+#~ msgstr "قائمة ودجات الفوتر"
+
+#~ msgid "Side Sidebar"
+#~ msgstr "قائمة ودجات جانب الموقع"
+
+#~ msgid "Archive Right Sidebar"
+#~ msgstr "قائمة ودجات يمين التصنيفات"
+
+#~ msgid "Archive Left Sidebar"
+#~ msgstr "قائمة ودجات يسار التصنيفات"
+
+#~ msgid "Post Right Sidebar"
+#~ msgstr "قائمة ودجات يمين المقال"
+
+#~ msgid "Post Left Sidebar"
+#~ msgstr "قائمة ودجات يسار المقال"
+
+#~ msgid "Post Middle Sidebar"
+#~ msgstr "قائمة ودجات وسط  المقال"
+
+#~ msgid "Post Below Sidebar"
+#~ msgstr "قائمة ودجات أسفل المقال"
+
+#~ msgid "Home Page Sidebar"
+#~ msgstr "قائمة ودجات الصفحة الرئيسية"
+
+#~ msgid "Empty Pages Template Sidebar"
+#~ msgstr "قائمة ودجات نموذج صفحة فارغة"
+
+#~ msgid "All posts by: %s"
+#~ msgstr "جميع المقالات بواسطة: %s"
+
+#~ msgid "Previous Page"
+#~ msgstr "الصفحة السابقة"
+
+#~ msgid "Next Page"
+#~ msgstr "الصفحة التالية"
+
+#~ msgid "Loading..."
+#~ msgstr "جاري التحميل..."
+
+#~ msgid "Return to previous page"
+#~ msgstr "الرجوع للصفحة السابقة"
+
+#~ msgid "Views"
+#~ msgstr "مشاهدات"
+
+#~ msgid "Share on"
+#~ msgstr "شارك على"
+
+#~ msgid "Link copied"
+#~ msgstr "تم نسخ الرابط"
+
+#~ msgid "Copy link"
+#~ msgstr "نسخ الرابط"
+
+#~ msgid "Short link"
+#~ msgstr "الرابط المختصر"
+
+#~ msgid "Disable ads in this page"
+#~ msgstr "تعطيل الإعلانات في هذه الصفحة"
+
+#~ msgid "Hide featured image in this page"
+#~ msgstr "إخفاء الصورة البارزة في هذه الصفحة"
+
+#~ msgid "days"
+#~ msgstr "يوم"
+
+#~ msgid "Latest"
+#~ msgstr "الأحدث"
+
+#~ msgid "Recently Updated"
+#~ msgstr "المحدث مؤخرا"
+
+#~ msgid "Trending"
+#~ msgstr "الرائج الآن"
+
+#~ msgid "Most Popular"
+#~ msgstr "الأكثر مشاهدة"
+
+#~ msgid "Most Commented"
+#~ msgstr "الأكثر تعليقا"
+
+#~ msgid "Sticky"
+#~ msgstr "المثبت"
+
+#~ msgid "Random"
+#~ msgstr "عشوائي"
+
+#~ msgid "Navigate Site"
+#~ msgstr "تصفح الموقع"
+
+#~ msgid "Breaking"
+#~ msgstr "عاجل"
+
+#~ msgid "Citation"
+#~ msgstr "المرجع"
+
+#~ msgid "Change Mode"
+#~ msgstr "تغيير النظام"
+
+#~ msgid "Second"
+#~ msgstr "ثانية"
+
+#~ msgid "Minute"
+#~ msgstr "دقيقة"
+
+#~ msgid "Hour"
+#~ msgstr "ساعة"
+
+#~ msgid "Day"
+#~ msgstr "يوم"
+
+#~ msgid "Secondary Title"
+#~ msgstr "العنوان الثانوي"
+
+#~ msgid "Download"
+#~ msgstr "تحميل"
+
+#~ msgid "&laquo; Previous"
+#~ msgstr "&laquo; الصفحة السابقة"
+
+#~ msgid "Next &raquo;"
+#~ msgstr "الصفحة التالية &raquo;"
+
+#~ msgid "Nabd App"
+#~ msgstr "تطبيق نبض"
+
+#~ msgid "Source"
+#~ msgstr "المرجع"
+
+#~ msgid "Sources"
+#~ msgstr "المراجع"
+
+#~ msgid "Show posts published in the last"
+#~ msgstr "اعرض المقالات المنشورة خلال آخر"
+
+#~ msgid "Show posts updated in the last"
+#~ msgstr "اعرض المقالات المحدثة خلال آخر"
+
+#~ msgid "Close Search"
+#~ msgstr "إغلاق البحث"
+
+#~ msgid "Main Menu: Mobile"
+#~ msgstr "القائمة الرئيسية للموبايل"
+
+#~ msgid "Main Menu: Desktop"
+#~ msgstr "القائمة الرئيسية للكمبيوتر"
+
+#~ msgid "Footer Menu"
+#~ msgstr "القائمة السفلية"
+
+#~ msgid "Header Menu"
+#~ msgstr "قائمة الهيدر"
+
+#~ msgid "Posts: by publish date"
+#~ msgstr "المقالات: بتاريخ النشر"
+
+#~ msgid "Posts: by update date"
+#~ msgstr "المقالات: بتاريخ التحديث"
+
+#~ msgid "Posts: trending"
+#~ msgstr "المقالات: الرائجة"
+
+#~ msgid "Posts: most viewed"
+#~ msgstr "المقالات: الأكثر مشاهدة"
+
+#~ msgid "Posts: sticky"
+#~ msgstr "المقالات: المثبتة"
+
+#~ msgid "Posts: random"
+#~ msgstr "المقالات: العشوائية"
+
+#~ msgid "No More Posts"
+#~ msgstr "لا يوجد المزيد"
+
+#~ msgid "Most Viewed"
+#~ msgstr "الأكثر مشاهدة"
+
+#~ msgid "Recently Added"
+#~ msgstr "أحدث الإضافات"
+
+#~ msgid "Other Categories"
+#~ msgstr "التصنيفات الأخرى"
+
+#~ msgid "Test"
+#~ msgstr "قائمة ودجات نموذج الصفحات الفارغة"
+
+#~ msgid "Empty page"
+#~ msgstr "صفحة فارغة"
+
+#~ msgid "Beside Post Sidebar"
+#~ msgstr "قائمة ودجات جوار المقال"
+
+#~ msgid "Below Post Sidebar"
+#~ msgstr "قائمة ودجات أسفل المقال"

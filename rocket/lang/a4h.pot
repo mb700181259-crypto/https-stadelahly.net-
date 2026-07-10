@@ -1,0 +1,229 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: WordPress\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: Arb4Host\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=iso-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.2\n"
+
+msgid "Social Links"
+msgstr ""
+
+msgid "Website"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Facebook"
+msgstr ""
+
+msgid "Messenger"
+msgstr ""
+
+msgid "Twitter"
+msgstr ""
+
+msgid "x.com"
+msgstr ""
+
+msgid "Instagram"
+msgstr ""
+
+msgid "Threads"
+msgstr ""
+
+msgid "YouTube"
+msgstr ""
+
+msgid "TikTok"
+msgstr ""
+
+msgid "Snapchat"
+msgstr ""
+
+msgid "Twitch"
+msgstr ""
+
+msgid "Vimeo"
+msgstr ""
+
+msgid "Pinterest"
+msgstr ""
+
+msgid "Patreon"
+msgstr ""
+
+msgid "Reddit"
+msgstr ""
+
+msgid "Discord"
+msgstr ""
+
+msgid "Telegram"
+msgstr ""
+
+msgid "WhatsApp"
+msgstr ""
+
+msgid "LinkedIn"
+msgstr ""
+
+msgid "GitHub"
+msgstr ""
+
+msgid "VK"
+msgstr ""
+
+msgid "Behance"
+msgstr ""
+
+msgid "Google News"
+msgstr ""
+
+msgid "Android App"
+msgstr ""
+
+msgid "iOS App"
+msgstr ""
+
+msgid "RSS Feed"
+msgstr ""
+
+msgid "Search"
+msgstr ""
+
+msgid "Menu"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Switch Mode"
+msgstr ""
+
+msgid "Powered by Arb4Host Network"
+msgstr "
+
+msgid "Widgets Area"
+msgstr "
+
+msgid "Search Results"
+msgstr "
+
+msgid "Search Results for: %s"
+msgstr "
+
+msgid "Archives"
+msgstr "
+
+msgid "Monthly Archives: %s"
+msgstr "
+
+msgid "Daily Archives: %s"
+msgstr "
+
+msgid "Yearly Archives: %s"
+msgstr "
+
+msgid "Author Page: %s"
+msgstr "
+
+msgid "Nothing Found"
+msgstr "
+
+msgid "Oops! That page can&rsquo;t be found"
+msgstr "
+
+msgid "It seems we can&rsquo;t find what you&rsquo;re looking for. Perhaps searching can help."
+msgstr "
+
+msgid "Sorry, but nothing matched your search terms. Please try again with some different keywords."
+msgstr "
+
+msgid "Filter"
+msgstr "
+
+msgid "Show More"
+msgstr "
+
+msgid "By"
+msgstr "
+
+msgid "Show all posts by author"
+msgstr "
+
+msgid "The author"
+msgstr "
+
+msgctxt "Post date"
+msgid "Posted"
+msgstr "
+
+msgid "Posted"
+msgstr "
+
+msgid "Updated"
+msgstr "
+
+msgid "In"
+msgstr "
+
+msgid "Share"
+msgstr "
+
+msgid "More"
+msgstr "
+
+msgid "Questions & Answers"
+msgstr "
+
+msgid "Citations"
+msgstr "
+
+msgid "Jump to citation"
+msgstr "
+
+msgid "Continue reading"
+msgstr "
+
+msgid "Seconds"
+msgstr "
+
+msgid "Minutes"
+msgstr "
+
+msgid "Hours"
+msgstr "
+
+msgid "Days"
+msgstr "
+
+msgid "All"
+msgstr "
+
+msgid "Subcategories"
+msgstr "
+
+msgid "All categories"
+msgstr "
+
+msgid "Posts archive: Latest"
+msgstr "
+
+msgid "Posts archive: Popular"
+msgstr "
+
+msgid "No content"
+msgstr "
+
+msgid "Go to Top"
+msgstr "
+
+msgid "Log in/Register"
+msgstr "
