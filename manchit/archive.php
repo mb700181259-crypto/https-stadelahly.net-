@@ -21,6 +21,7 @@ get_header();
 					}
 					?>
 				</div>
+				<?php if ( function_exists( 'manchit_sort_control' ) ) { manchit_sort_control(); } ?>
 			</header>
 
 			<?php manchit_subcategories(); ?>

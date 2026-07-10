@@ -461,6 +461,41 @@
 		if (level !== 0) { apply(); }
 	})();
 
+	/* ---------------------------------------------------------------
+	 * Quick search suggestions (in the search overlay)
+	 * ------------------------------------------------------------- */
+	(function initSuggest() {
+		if (!searchOverlay || !data.restUrl) { return; }
+		var input = searchOverlay.querySelector('input[type="search"]');
+		if (!input) { return; }
+		var box = doc.createElement('div');
+		box.className = 'mn-suggest';
+		input.parentNode.parentNode.appendChild(box);
+		var timer = null, lastQ = '';
+
+		function render(items) {
+			if (!items.length) { box.innerHTML = ''; box.classList.remove('is-open'); return; }
+			box.innerHTML = items.map(function (it) {
+				return '<a href="' + it.url + '">' + it.title.replace(/</g, '&lt;') + '</a>';
+			}).join('');
+			box.classList.add('is-open');
+		}
+		on(input, 'input', function () {
+			var q = input.value.trim();
+			if (q === lastQ) { return; }
+			lastQ = q;
+			if (timer) { clearTimeout(timer); }
+			if (q.length < 2) { render([]); return; }
+			timer = setTimeout(function () {
+				fetch(data.restUrl + 'manchit/v1/suggest?q=' + encodeURIComponent(q))
+					.then(function (r) { return r.ok ? r.json() : []; })
+					.then(render)
+					.catch(function () {});
+			}, 220);
+		});
+		on(doc, 'keyup', function (e) { if (e.key === 'Escape') { render([]); } });
+	})();
+
 	/* Mark JS as ready for progressive styling. */
 	root.classList.add('mn-js');
 })();

@@ -55,6 +55,7 @@ function manchit_register_widgets() {
 	register_widget( 'Manchit_Recent_Posts_Widget' );
 	register_widget( 'Manchit_Social_Widget' );
 	register_widget( 'Manchit_Ad_Widget' );
+	register_widget( 'Manchit_Trending_Widget' );
 }
 add_action( 'widgets_init', 'manchit_register_widgets' );
 
@@ -207,6 +208,65 @@ class Manchit_Recent_Posts_Widget extends WP_Widget {
 			'title' => sanitize_text_field( $new['title'] ?? '' ),
 			'count' => max( 1, (int) ( $new['count'] ?? 5 ) ),
 			'cat'   => (int) ( $new['cat'] ?? 0 ),
+		);
+	}
+}
+
+/**
+ * Trending widget — most-viewed posts within a period (today/week/month/all).
+ */
+class Manchit_Trending_Widget extends WP_Widget {
+
+	public function __construct() {
+		parent::__construct(
+			'manchit_trending',
+			__( 'Manchit: الأكثر مشاهدة (بفترة)', 'manchit' ),
+			array( 'description' => __( 'الأكثر مشاهدة اليوم/الأسبوع/الشهر.', 'manchit' ) )
+		);
+	}
+
+	public function widget( $args, $instance ) {
+		$title  = apply_filters( 'widget_title', $instance['title'] ?? __( 'الأكثر مشاهدة', 'manchit' ) );
+		$period = $instance['period'] ?? 'week';
+		$count  = max( 1, (int) ( $instance['count'] ?? 5 ) );
+		if ( ! function_exists( 'manchit_trending_shortcode' ) ) {
+			return;
+		}
+		$html = manchit_trending_shortcode( array( 'period' => $period, 'count' => $count ) );
+		if ( '' === $html ) {
+			return;
+		}
+		echo $args['before_widget']; // phpcs:ignore
+		if ( $title ) {
+			echo $args['before_title'] . esc_html( $title ) . $args['after_title']; // phpcs:ignore
+		}
+		echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built with escaping.
+		echo $args['after_widget']; // phpcs:ignore
+	}
+
+	public function form( $instance ) {
+		$title  = $instance['title'] ?? __( 'الأكثر مشاهدة', 'manchit' );
+		$period = $instance['period'] ?? 'week';
+		$count  = $instance['count'] ?? 5;
+		?>
+		<p><label><?php esc_html_e( 'العنوان:', 'manchit' ); ?>
+			<input class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" value="<?php echo esc_attr( $title ); ?>"></label></p>
+		<p><label><?php esc_html_e( 'الفترة:', 'manchit' ); ?>
+			<select class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'period' ) ); ?>">
+				<?php foreach ( array( 'today' => __( 'اليوم', 'manchit' ), 'week' => __( 'الأسبوع', 'manchit' ), 'month' => __( 'الشهر', 'manchit' ), 'all' => __( 'كل الوقت', 'manchit' ) ) as $v => $l ) : ?>
+					<option value="<?php echo esc_attr( $v ); ?>" <?php selected( $period, $v ); ?>><?php echo esc_html( $l ); ?></option>
+				<?php endforeach; ?>
+			</select></label></p>
+		<p><label><?php esc_html_e( 'العدد:', 'manchit' ); ?>
+			<input type="number" min="1" max="20" class="tiny-text" name="<?php echo esc_attr( $this->get_field_name( 'count' ) ); ?>" value="<?php echo esc_attr( $count ); ?>"></label></p>
+		<?php
+	}
+
+	public function update( $new, $old ) {
+		return array(
+			'title'  => sanitize_text_field( $new['title'] ?? '' ),
+			'period' => in_array( $new['period'] ?? 'week', array( 'today', 'week', 'month', 'all' ), true ) ? $new['period'] : 'week',
+			'count'  => max( 1, (int) ( $new['count'] ?? 5 ) ),
 		);
 	}
 }

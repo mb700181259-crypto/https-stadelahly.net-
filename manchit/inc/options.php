@@ -94,6 +94,12 @@ function manchit_default_options() {
 		'rs_enable'            => 0,
 		'rs_ratio'             => 50,
 
+		// Custom code.
+		'custom_css'           => '',
+		'custom_head'          => '',
+		'custom_body_open'     => '',
+		'custom_footer'        => '',
+
 		// Footer.
 		'copyright_text'       => '',
 		'footer_columns'       => 4,

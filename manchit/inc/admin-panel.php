@@ -45,6 +45,8 @@ function manchit_settings_tabs() {
 		'seo'     => __( 'السيو وجوجل نيوز', 'manchit' ),
 		'ads'     => __( 'إدارة الإعلانات', 'manchit' ),
 		'social'  => __( 'التواصل الاجتماعي', 'manchit' ),
+		'code'    => __( 'أكواد مخصّصة', 'manchit' ),
+		'tools'   => __( 'أدوات وتشخيص', 'manchit' ),
 	);
 }
 
@@ -121,9 +123,15 @@ function manchit_save_options() {
  */
 function manchit_sanitize_option( $key, $value ) {
 	$colors  = array( 'brand_color', 'accent_color' );
-	$urls    = array( 'organization_logo', 'publisher_logo', 'fallback_image' );
+	$urls    = array( 'organization_logo', 'publisher_logo', 'fallback_image', 'dark_logo' );
 	$ints    = array( 'base_font_size', 'toc_min_headings', 'related_count', 'excerpt_length', 'footer_columns', 'ticker_category' );
 	$raw     = array( 'copyright_text' );
+	// Custom code fields are stored verbatim (admin/manage_options only).
+	$code    = array( 'custom_css', 'custom_head', 'custom_body_open', 'custom_footer' );
+
+	if ( in_array( $key, $code, true ) ) {
+		return current_user_can( 'manage_options' ) ? (string) $value : '';
+	}
 
 	if ( in_array( $key, $colors, true ) ) {
 		return sanitize_hex_color( $value ) ?: '';
@@ -513,6 +521,13 @@ function manchit_render_settings_page() {
 			<div class="notice notice-info is-dismissible"><p><?php echo esc_html( $adstxt_notice ); ?></p></div>
 			<?php delete_transient( 'manchit_ads_txt_notice' ); ?>
 		<?php endif; ?>
+		<?php
+		$tools_notice = get_transient( 'manchit_tools_notice' );
+		if ( $tools_notice ) :
+			?>
+			<div class="notice notice-info is-dismissible"><p><?php echo esc_html( $tools_notice ); ?></p></div>
+			<?php delete_transient( 'manchit_tools_notice' ); ?>
+		<?php endif; ?>
 
 		<nav class="nav-tab-wrapper manchit-tabs">
 			<?php foreach ( $tabs as $slug => $label ) : ?>
@@ -523,23 +538,29 @@ function manchit_render_settings_page() {
 			<?php endforeach; ?>
 		</nav>
 
-		<form method="post" action="<?php echo esc_url( admin_url( 'themes.php?page=manchit-settings&tab=' . $current_tab ) ); ?>" class="manchit-form">
-			<?php wp_nonce_field( 'manchit_save_settings', 'manchit_settings_nonce' ); ?>
-			<input type="hidden" name="manchit_tab" value="<?php echo esc_attr( $current_tab ); ?>">
-
+		<?php
+		$callback = 'manchit_tab_' . $current_tab;
+		// The tools tab contains its own <form>s (admin-post) — render it standalone
+		// to avoid invalid nested forms.
+		if ( 'tools' === $current_tab ) :
+			?>
 			<div class="manchit-panel">
-				<?php
-				$callback = 'manchit_tab_' . $current_tab;
-				if ( function_exists( $callback ) ) {
-					call_user_func( $callback, $o );
-				}
-				?>
+				<?php if ( function_exists( $callback ) ) { call_user_func( $callback, $o ); } ?>
 			</div>
+		<?php else : ?>
+			<form method="post" action="<?php echo esc_url( admin_url( 'themes.php?page=manchit-settings&tab=' . $current_tab ) ); ?>" class="manchit-form">
+				<?php wp_nonce_field( 'manchit_save_settings', 'manchit_settings_nonce' ); ?>
+				<input type="hidden" name="manchit_tab" value="<?php echo esc_attr( $current_tab ); ?>">
 
-			<p class="submit">
-				<button type="submit" class="button button-primary button-hero"><?php esc_html_e( 'حفظ التغييرات', 'manchit' ); ?></button>
-			</p>
-		</form>
+				<div class="manchit-panel">
+					<?php if ( function_exists( $callback ) ) { call_user_func( $callback, $o ); } ?>
+				</div>
+
+				<p class="submit">
+					<button type="submit" class="button button-primary button-hero"><?php esc_html_e( 'حفظ التغييرات', 'manchit' ); ?></button>
+				</p>
+			</form>
+		<?php endif; ?>
 	</div>
 	<?php
 }
@@ -733,6 +754,68 @@ function manchit_tab_social( $o ) {
 }
 
 /**
+ * Custom code tab.
+ *
+ * @param array $o Options.
+ */
+function manchit_tab_code( $o ) {
+	echo '<p class="manchit-hint">' . esc_html__( 'أكواد تُدرَج في الموقع. متاحة لمن يملك صلاحية manage_options فقط.', 'manchit' ) . '</p>';
+	manchit_field_row( __( 'CSS مخصّص', 'manchit' ), sprintf( '<textarea name="manchit_options[custom_css]" rows="5" class="large-text code" dir="ltr">%s</textarea>', esc_textarea( $o['custom_css'] ) ) );
+	manchit_field_row( __( 'كود داخل <head>', 'manchit' ), sprintf( '<textarea name="manchit_options[custom_head]" rows="4" class="large-text code" dir="ltr">%s</textarea>', esc_textarea( $o['custom_head'] ) ), __( 'وسوم تحقّق، بكسلات، إلخ.', 'manchit' ) );
+	manchit_field_row( __( 'كود بعد <body>', 'manchit' ), sprintf( '<textarea name="manchit_options[custom_body_open]" rows="4" class="large-text code" dir="ltr">%s</textarea>', esc_textarea( $o['custom_body_open'] ) ) );
+	manchit_field_row( __( 'كود قبل نهاية الصفحة', 'manchit' ), sprintf( '<textarea name="manchit_options[custom_footer]" rows="4" class="large-text code" dir="ltr">%s</textarea>', esc_textarea( $o['custom_footer'] ) ) );
+}
+
+/**
+ * Tools tab: import / export / restore / reset / diagnostics.
+ *
+ * @param array $o Options (unused).
+ */
+function manchit_tab_tools( $o ) {
+	$post = esc_url( admin_url( 'admin-post.php' ) );
+	?>
+	<h2><?php esc_html_e( 'تصدير الإعدادات', 'manchit' ); ?></h2>
+	<form method="post" action="<?php echo $post; ?>" style="margin-bottom:1.4rem">
+		<?php wp_nonce_field( 'manchit_export' ); ?>
+		<input type="hidden" name="action" value="manchit_export">
+		<button class="button"><?php esc_html_e( 'تنزيل ملف JSON', 'manchit' ); ?></button>
+	</form>
+
+	<h2><?php esc_html_e( 'استيراد الإعدادات', 'manchit' ); ?></h2>
+	<p class="manchit-hint"><?php esc_html_e( 'JSON فقط. يُتحقق من البنية والحجم والمفاتيح، وتُحفظ نسخة احتياطية قبل التطبيق.', 'manchit' ); ?></p>
+	<form method="post" enctype="multipart/form-data" action="<?php echo $post; ?>" style="margin-bottom:1.4rem">
+		<?php wp_nonce_field( 'manchit_import' ); ?>
+		<input type="hidden" name="action" value="manchit_import">
+		<input type="file" name="manchit_import_file" accept="application/json,.json" required>
+		<button class="button button-primary"><?php esc_html_e( 'استيراد', 'manchit' ); ?></button>
+	</form>
+
+	<h2><?php esc_html_e( 'استرجاع وإعادة ضبط', 'manchit' ); ?></h2>
+	<div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1.4rem">
+		<form method="post" action="<?php echo $post; ?>">
+			<?php wp_nonce_field( 'manchit_restore' ); ?>
+			<input type="hidden" name="action" value="manchit_restore">
+			<button class="button"><?php esc_html_e( 'استرجاع آخر نسخة احتياطية', 'manchit' ); ?></button>
+		</form>
+		<form method="post" action="<?php echo $post; ?>" onsubmit="return confirm('<?php echo esc_js( __( 'إعادة كل الإعدادات للافتراضي؟', 'manchit' ) ); ?>')">
+			<?php wp_nonce_field( 'manchit_reset' ); ?>
+			<input type="hidden" name="action" value="manchit_reset">
+			<button class="button button-link-delete"><?php esc_html_e( 'استعادة الإعدادات الافتراضية', 'manchit' ); ?></button>
+		</form>
+	</div>
+
+	<h2><?php esc_html_e( 'معلومات النظام والتشخيص', 'manchit' ); ?></h2>
+	<table class="widefat striped" style="max-width:640px">
+		<tbody>
+		<?php foreach ( manchit_diagnostics() as $label => $value ) : ?>
+			<tr><th style="width:220px"><?php echo esc_html( $label ); ?></th><td><?php echo esc_html( $value ); ?></td></tr>
+		<?php endforeach; ?>
+		</tbody>
+	</table>
+	<?php
+}
+
+/**
  * Ads Manager tab (custom repeater — not the generic option form).
  *
  * @param array $o Options (unused; ads use their own store).
@@ -807,6 +890,19 @@ function manchit_tab_ads( $o ) {
 	$o_rs = manchit_get_options();
 	manchit_field_row( __( 'تفعيل مشاركة الأرباح', 'manchit' ), manchit_toggle( 'rs_enable', $o_rs['rs_enable'], __( 'تفعيل النظام', 'manchit' ) ) );
 	manchit_field_row( __( 'النسبة العامة لظهور إعلانات الكاتب (%)', 'manchit' ), manchit_input( 'rs_ratio', $o_rs['rs_ratio'], 'number', 'min="0" max="100"' ), __( 'مثال: 50 = نصف مشاهدات مقالات الكاتب تعرض كوده. يمكن تخصيص نسبة لكل كاتب من ملفه.', 'manchit' ) );
+
+	// Impressions report (counts sampled per recorded view — NOT money).
+	if ( function_exists( 'manchit_rs_report' ) ) {
+		$report = manchit_rs_report();
+		if ( $report ) {
+			echo '<h3>' . esc_html__( 'تقرير مرات الظهور (تقديري بالعيّنة — ليس أرباحاً مالية)', 'manchit' ) . '</h3>';
+			echo '<table class="widefat striped" style="max-width:640px"><thead><tr><th>' . esc_html__( 'الكاتب', 'manchit' ) . '</th><th>' . esc_html__( 'ظهور إعلان الكاتب', 'manchit' ) . '</th><th>' . esc_html__( 'ظهور إعلان الموقع', 'manchit' ) . '</th></tr></thead><tbody>';
+			foreach ( $report as $row ) {
+				printf( '<tr><td>%s</td><td>%s</td><td>%s</td></tr>', esc_html( $row['name'] ), esc_html( number_format_i18n( $row['author_hits'] ) ), esc_html( number_format_i18n( $row['site_hits'] ) ) );
+			}
+			echo '</tbody></table>';
+		}
+	}
 	?>
 
 	<script type="text/template" id="manchit-ad-template">

@@ -4,7 +4,7 @@ Theme URI: https://stadelahly.net/
 Author: Manchit
 Author URI: https://stadelahly.net/
 Description: قالب أخبار احترافي فائق السرعة، مُحسّن بالكامل لسيو جوجل نيوز واكتشاف جوجل (Discover) واقتراحات جوجل. مبني لتجربة قراءة بصرية آسرة، مع نظام إعلانات وخطوط عربية متقدم، ودعم كامل للعربية (RTL) والوضع الليلي/النهاري. A blazing-fast, SEO-first news theme engineered for Google News, Google Discover and Google Suggest.
-Version: 1.6.0
+Version: 1.7.0
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
@@ -491,6 +491,17 @@ ul[role="list"], ol[role="list"] { list-style: none; padding: 0; }
 
 /* Full-width ad card inside a grid */
 .mn-cards__ad { grid-column: 1 / -1; }
+
+/* Quick search suggestions */
+.mn-suggest { width: min(640px, 90vw); margin-top: .5rem; background: var(--mn-surface); border-radius: var(--mn-radius); box-shadow: var(--mn-shadow-lg); overflow: hidden; display: none; }
+.mn-suggest.is-open { display: block; }
+.mn-suggest a { display: block; padding: .7rem 1.1rem; color: var(--mn-text); border-bottom: 1px solid var(--mn-border); font-weight: 600; }
+.mn-suggest a:last-child { border-bottom: none; }
+.mn-suggest a:hover { background: var(--mn-surface-2); color: var(--mn-brand); }
+
+/* Archive sort control */
+.mn-sort { font-size: .85rem; color: var(--mn-text-mute); }
+.mn-sort select { border: 1px solid var(--mn-border); border-radius: var(--mn-radius-sm); padding: .35em .7em; background: var(--mn-surface); color: var(--mn-text); font-weight: 600; }
 
 /* Homepage section builder */
 .mn-home-section { padding-block: var(--mn-gap-lg) 0; }

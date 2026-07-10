@@ -36,6 +36,11 @@ function manchit_get_post_views( $post_id = null ) {
 function manchit_increment_post_views( $post_id ) {
 	$count = manchit_get_post_views( $post_id ) + 1;
 	update_post_meta( $post_id, MANCHIT_VIEWS_META, $count );
+	/**
+	 * Fires once per recorded view — used by revenue sharing to sample the
+	 * author/site impression split without per-request DB writes.
+	 */
+	do_action( 'manchit_view_recorded', $post_id );
 	return $count;
 }
 

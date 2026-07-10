@@ -106,6 +106,94 @@ function manchit_rs_filter_ad_code( $code, $unit ) {
 add_filter( 'manchit_ad_code', 'manchit_rs_filter_ad_code', 10, 2 );
 
 /* -------------------------------------------------------------------------
+ * Impression reporting (counts, NOT money)
+ * ---------------------------------------------------------------------- */
+
+const MANCHIT_RS_AUTHOR_HITS = '_manchit_rs_author_hits';
+const MANCHIT_RS_SITE_HITS   = '_manchit_rs_site_hits';
+
+/**
+ * Sample the author/site impression split once per recorded view (cache-safe,
+ * one extra meta write piggybacking on the views counter).
+ *
+ * @param int $post_id Post ID.
+ */
+function manchit_rs_record_impression( $post_id ) {
+	if ( ! manchit_rs_enabled() || 'post' !== get_post_type( $post_id ) ) {
+		return;
+	}
+	$author_id = (int) get_post_field( 'post_author', $post_id );
+	$code      = get_user_meta( $author_id, MANCHIT_RS_META, true );
+	if ( '' === trim( (string) $code ) ) {
+		return;
+	}
+	$ratio = get_user_meta( $author_id, 'manchit_author_ad_ratio', true );
+	$ratio = '' === $ratio ? manchit_rs_ratio() : max( 0, min( 100, (int) $ratio ) );
+
+	if ( wp_rand( 1, 100 ) <= $ratio ) {
+		$meta = MANCHIT_RS_AUTHOR_HITS;
+	} else {
+		$meta = MANCHIT_RS_SITE_HITS;
+	}
+	update_post_meta( $post_id, $meta, (int) get_post_meta( $post_id, $meta, true ) + 1 );
+}
+add_action( 'manchit_view_recorded', 'manchit_rs_record_impression' );
+
+/**
+ * Build a per-author impressions report.
+ *
+ * @return array author_id => [name, author_hits, site_hits]
+ */
+function manchit_rs_report() {
+	$q = new WP_Query(
+		array(
+			'post_type'      => 'post',
+			'post_status'    => 'publish',
+			'posts_per_page' => 500,
+			'no_found_rows'  => true,
+			'fields'         => 'ids',
+			'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'relation' => 'OR',
+				array( 'key' => MANCHIT_RS_AUTHOR_HITS, 'compare' => 'EXISTS' ),
+				array( 'key' => MANCHIT_RS_SITE_HITS, 'compare' => 'EXISTS' ),
+			),
+		)
+	);
+	$report = array();
+	foreach ( $q->posts as $pid ) {
+		$aid = (int) get_post_field( 'post_author', $pid );
+		if ( ! isset( $report[ $aid ] ) ) {
+			$report[ $aid ] = array( 'name' => get_the_author_meta( 'display_name', $aid ), 'author_hits' => 0, 'site_hits' => 0 );
+		}
+		$report[ $aid ]['author_hits'] += (int) get_post_meta( $pid, MANCHIT_RS_AUTHOR_HITS, true );
+		$report[ $aid ]['site_hits']   += (int) get_post_meta( $pid, MANCHIT_RS_SITE_HITS, true );
+	}
+	return $report;
+}
+
+/**
+ * Append an entry to the RS admin activity log (last 50 kept).
+ *
+ * @param string $message Message.
+ */
+function manchit_rs_log( $message ) {
+	$log   = get_option( 'manchit_rs_log', array() );
+	if ( ! is_array( $log ) ) {
+		$log = array();
+	}
+	$user  = wp_get_current_user();
+	array_unshift(
+		$log,
+		array(
+			'time' => current_time( 'mysql' ),
+			'user' => $user ? $user->user_login : '—',
+			'msg'  => $message,
+		)
+	);
+	update_option( 'manchit_rs_log', array_slice( $log, 0, 50 ) );
+}
+
+/* -------------------------------------------------------------------------
  * User profile fields
  * ---------------------------------------------------------------------- */
 
@@ -175,10 +263,14 @@ function manchit_rs_save_profile_fields( $user_id ) {
 	}
 	if ( current_user_can( 'edit_users' ) && isset( $_POST['manchit_author_ad_ratio'] ) ) {
 		$val = trim( (string) wp_unslash( $_POST['manchit_author_ad_ratio'] ) );
+		$old = get_user_meta( $user_id, 'manchit_author_ad_ratio', true );
 		if ( '' === $val ) {
 			delete_user_meta( $user_id, 'manchit_author_ad_ratio' );
 		} else {
 			update_user_meta( $user_id, 'manchit_author_ad_ratio', max( 0, min( 100, (int) $val ) ) );
+		}
+		if ( (string) $old !== $val ) {
+			manchit_rs_log( sprintf( 'تغيير نسبة الكاتب #%d من "%s" إلى "%s"', $user_id, $old, $val ) );
 		}
 	}
 }
