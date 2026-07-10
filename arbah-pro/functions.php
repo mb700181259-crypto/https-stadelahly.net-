@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ARBAH_PRO_VERSION', '1.0.0' );
+define( 'ARBAH_PRO_VERSION', '1.1.0' );
 define( 'ARBAH_PRO_DIR', trailingslashit( get_stylesheet_directory() ) );
 define( 'ARBAH_PRO_URI', trailingslashit( get_stylesheet_directory_uri() ) );
 
@@ -91,3 +91,4 @@ add_action( 'wp_enqueue_scripts', 'arbah_pro_enqueue_assets', 20 );
 require_once ARBAH_PRO_DIR . 'inc/performance.php';   // head cleanup, resource hints, LCP preload, font-display
 require_once ARBAH_PRO_DIR . 'inc/seo.php';           // JSON-LD, Open Graph, Twitter, Discover meta (auto-off if Rank Math/Yoast)
 require_once ARBAH_PRO_DIR . 'inc/news-sitemap.php';  // Google News XML sitemap
+require_once ARBAH_PRO_DIR . 'inc/autoload.php';      // infinite article reading (autoload next post)

@@ -96,3 +96,36 @@ html[data-theme="dark"] .arbah-pro-fab button {
 		transition: none;
 	}
 }
+
+/* ---------- Autoload next post ---------- */
+.arbah-pro-al-sentinel {
+	block-size: 1px;
+}
+
+.arbah-pro-next-article {
+	margin-block-start: 40px;
+	padding-block-start: 20px;
+	border-block-start: 3px solid rgba(0, 0, 0, .08);
+	position: relative;
+}
+
+.arbah-pro-next-article::before {
+	content: attr(data-al-label);
+	position: absolute;
+	inset-block-start: -12px;
+	inset-inline-start: 50%;
+	transform: translateX(-50%);
+	background: #4c9ffe;
+	color: #fff;
+	font-size: 12px;
+	padding: 2px 12px;
+	border-radius: 20px;
+	white-space: nowrap;
+}
+
+.arbah-pro-al-end {
+	text-align: center;
+	padding: 24px 0;
+	color: #888;
+	font-size: 14px;
+}
